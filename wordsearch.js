@@ -12,8 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const victoryMessage = document.getElementById('victory-message');
     const timerDisplay = document.getElementById('timer-display');
 
+    // NOVOS ELEMENTOS DA UI
+    const introScreen = document.getElementById('intro-screen');
+    const playButton = document.getElementById('play-button');
+    const gameOverlay = document.getElementById('game-overlay');
+
     const soundCorrect = new Audio('sons/acerto.mp3');
-    const soundVictory = new Audio('sons/vitoria.mp3'); // Certifique-se de que o nome do arquivo está correto
+    const soundVictory = new Audio('sons/vitoria.mp3');
     soundCorrect.volume = 0.5;
     soundVictory.volume = 0.7;
 
@@ -28,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const GRID_SIZE = 15;
     const FONT_FAMILY = 'Arial Black, Arial, sans-serif';
 
-    // Essas variáveis serão definidas dinamicamente em initializeGame()
     let CELL_SIZE;
     let FONT_SIZE;
 
@@ -55,30 +59,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function initializeGame() {
-        // Obter as dimensões do canvas conforme renderizadas pelo CSS
+        // Redimensionamento do canvas e cálculo de CELL_SIZE/FONT_SIZE
         const computedStyle = window.getComputedStyle(canvas);
         const cssWidth = parseFloat(computedStyle.width);
-        const cssHeight = parseFloat(computedStyle.height); // O CSS define height: auto, então esta será a altura computada.
+        const cssHeight = parseFloat(computedStyle.height);
 
-        const dpr = window.devicePixelRatio || 1; // Device Pixel Ratio para telas de alta densidade
+        const dpr = window.devicePixelRatio || 1;
 
-        // Definir as dimensões internas do canvas em pixels "reais" da tela.
-        // Isso é crucial para que o desenho não fique embaçado em telas de alta densidade
-        // e para que os cálculos de clique sejam precisos.
         canvas.width = cssWidth * dpr;
         canvas.height = cssHeight * dpr;
 
-        // Resetar a escala do contexto de desenho para 1 antes de aplicar a nova escala
-        // Isso é importante se initializeGame for chamado múltiplas vezes (ex: resize)
-        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reseta a matriz de transformação
-        ctx.scale(dpr, dpr); // Aplica a escala para desenhar na resolução correta
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
 
-        // Agora, calcule CELL_SIZE com base na largura *visual* (CSS width)
-        // Isso garante que o CELL_SIZE corresponda ao que o usuário vê
-        CELL_SIZE = cssWidth / GRID_SIZE; // Usamos cssWidth aqui, não canvas.width, pois já aplicamos o DPR ao canvas
+        CELL_SIZE = cssWidth / GRID_SIZE;
         FONT_SIZE = CELL_SIZE * 0.6;
 
-        // Configurar as propriedades do contexto de desenho
         ctx.font = `${FONT_SIZE}px ${FONT_FAMILY}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -93,7 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(timerInterval);
         secondsElapsed = 0;
         updateTimerDisplay();
-        startTimer();
+        // Não iniciar o timer aqui, será iniciado ao clicar em 'Jogar'
+        // startTimer(); // REMOVIDO DA INICIALIZAÇÃO DIRETA
 
         victoryMessage.style.display = 'none';
         restartButton.style.display = 'block';
@@ -105,7 +102,19 @@ document.addEventListener('DOMContentLoaded', () => {
         placeWords();
         fillEmptyCells();
         displayWordList();
-        drawGrid(); // Chame drawGrid após as novas dimensões e cálculos
+        drawGrid();
+
+        // Esconder o jogo e mostrar a tela de introdução no carregamento inicial
+        // Isso é feito no CSS agora, então o jogo não é visível até o play
+        // Mas a lógica de visibilidade da intro é controlada aqui
+        introScreen.classList.remove('hidden'); // Garante que a tela de intro esteja visível no início
+        gameOverlay.classList.remove('visible'); // Garante que o overlay esteja oculto no início
+    }
+
+    function startGame() {
+        introScreen.classList.add('hidden'); // Esconde a tela de introdução
+        gameOverlay.classList.add('visible'); // Mostra o overlay escuro
+        startTimer(); // Inicia o timer quando o jogo realmente começa
     }
 
     function placeWords() {
@@ -184,12 +193,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Função para obter coordenadas da célula a partir de um evento de mouse/toque
     function getCellCoords(event) {
-        const rect = canvas.getBoundingClientRect(); // Posição e tamanho do canvas na viewport
+        const rect = canvas.getBoundingClientRect();
         let clientX, clientY;
 
-        // Diferencia entre evento de mouse e toque
         if (event.type.startsWith('touch')) {
             clientX = event.changedTouches[0].clientX;
             clientY = event.changedTouches[0].clientY;
@@ -198,11 +205,9 @@ document.addEventListener('DOMContentLoaded', () => {
             clientY = event.clientY;
         }
 
-        // Calcula a posição do clique/toque relativa ao canvas (em pixels CSS)
         const xInCssPixels = clientX - rect.left;
         const yInCssPixels = clientY - rect.top;
 
-        // Converte para coordenadas da célula usando o CELL_SIZE que corresponde aos pixels CSS
         const col = Math.floor(xInCssPixels / CELL_SIZE);
         const row = Math.floor(yInCssPixels / CELL_SIZE);
         
@@ -210,17 +215,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function drawGrid() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa toda a área de desenho do canvas
-
-        // Certifique-se de que a fonte é definida aqui novamente, caso CELL_SIZE tenha mudado
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
         ctx.font = `${FONT_SIZE}px ${FONT_FAMILY}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
         for (let r = 0; r < GRID_SIZE; r++) {
             for (let c = 0; c < GRID_SIZE; c++) {
-                // As coordenadas de desenho usam CELL_SIZE (em pixels CSS), e o ctx.scale(dpr, dpr)
-                // já se encarrega de mapear isso para os pixels físicos da tela.
                 const x = c * CELL_SIZE + CELL_SIZE / 2;
                 const y = r * CELL_SIZE + CELL_SIZE / 2;
 
@@ -399,6 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
             restartButton.style.display = 'none';
             soundVictory.play().catch(e => console.error("Erro ao tocar som de vitória:", e));
             triggerConfetti();
+            gameOverlay.classList.remove('visible'); // Remove o overlay na vitória
         }
     }
 
@@ -412,23 +415,17 @@ document.addEventListener('DOMContentLoaded', () => {
         gameContainer.querySelectorAll('.confetti').forEach(c => c.remove());
 
         const containerWidth = gameContainer.offsetWidth;
-        // A altura do container para os confetes deve ser o máximo entre a altura do container e a altura da tela
-        // para garantir que eles caiam até o fim.
-        const containerHeight = Math.max(gameContainer.offsetHeight, window.innerHeight); 
+        const containerHeight = Math.max(gameContainer.offsetHeight, window.innerHeight);
 
         for (let i = 0; i < 100; i++) {
             const confetti = document.createElement('div');
             confetti.classList.add('confetti');
             confetti.style.left = `${Math.random() * containerWidth}px`;
-            confetti.style.top = `-20px`; // Começa um pouco acima da borda superior
+            confetti.style.top = `-20px`;
             confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
             confetti.style.animationDelay = `${Math.random() * 2}s`;
             confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 70%)`;
             gameContainer.appendChild(confetti);
-
-            // Ajusta o keyframe da animação para garantir que os confetes caiam completamente
-            // Isso precisa ser feito dinamicamente ou no CSS se o CSS já permite 'calc()'
-            // No seu CSS já tem `translateY(calc(100% + 20px))` que funciona para isso.
         }
     }
 
@@ -447,16 +444,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Eventos de Mouse ---
     canvas.addEventListener('mousedown', (e) => {
-        startCellCoords = getCellCoords(e); // Usa a função unificada
-        endCellCoords = startCellCoords;
-        isSelecting = true;
-        currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
-        drawGrid();
+        // Verifica se o jogo está ativo (tela de introdução escondida e overlay visível)
+        if (introScreen.classList.contains('hidden') && gameOverlay.classList.contains('visible')) {
+            startCellCoords = getCellCoords(e);
+            endCellCoords = startCellCoords;
+            isSelecting = true;
+            currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
+            drawGrid();
+        }
     });
 
     canvas.addEventListener('mousemove', (e) => {
-        if (isSelecting) {
-            const currentCoords = getCellCoords(e); // Usa a função unificada
+        if (isSelecting && introScreen.classList.contains('hidden')) { // Verifica a tela de introdução
+            const currentCoords = getCellCoords(e);
             if (currentCoords.row !== endCellCoords.row || currentCoords.col !== endCellCoords.col) {
                 endCellCoords = currentCoords;
                 currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
@@ -466,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     canvas.addEventListener('mouseup', () => {
-        if (isSelecting) {
+        if (isSelecting && introScreen.classList.contains('hidden')) { // Verifica a tela de introdução
             checkWord();
         }
     });
@@ -479,28 +479,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Eventos de Toque (Touch) ---
     canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // Permite que você "arraste" no canvas sem rolar a página
-        startCellCoords = getCellCoords(e); // Usa a função unificada
-        endCellCoords = startCellCoords;
-        isSelecting = true;
-        currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
-        drawGrid();
-    }, { passive: false }); // { passive: false } é importante para que preventDefault funcione
+        if (introScreen.classList.contains('hidden') && gameOverlay.classList.contains('visible')) {
+            e.preventDefault();
+            startCellCoords = getCellCoords(e);
+            endCellCoords = startCellCoords;
+            isSelecting = true;
+            currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
+            drawGrid();
+        }
+    }, { passive: false });
 
     canvas.addEventListener('touchmove', (e) => {
-        if (isSelecting) {
-            e.preventDefault(); // Permite que você "arraste" no canvas sem rolar a página
-            const currentCoords = getCellCoords(e); // Usa a função unificada
+        if (isSelecting && introScreen.classList.contains('hidden')) {
+            e.preventDefault();
+            const currentCoords = getCellCoords(e);
             if (currentCoords.row !== endCellCoords.row || currentCoords.col !== endCellCoords.col) {
                 endCellCoords = currentCoords;
                 currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
                 drawGrid();
             }
         }
-    }, { passive: false }); // { passive: false } é importante para que preventDefault funcione
+    }, { passive: false });
 
     canvas.addEventListener('touchend', (e) => {
-        if (isSelecting) {
+        if (isSelecting && introScreen.classList.contains('hidden')) {
             checkWord();
         }
     });
@@ -511,14 +513,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    restartButton.addEventListener('click', initializeGame);
-    victoryRestartButton.addEventListener('click', initializeGame);
+    // Gerenciamento de eventos dos botões
+    playButton.addEventListener('click', startGame); // Botão Play inicia o jogo
+    restartButton.addEventListener('click', () => {
+        initializeGame(); // Reinicia o jogo (e mostra a tela de intro novamente)
+        // Se você quiser que o restartButton apenas reinicie o jogo sem voltar para a intro,
+        // remova a linha `introScreen.classList.remove('hidden');` de initializeGame()
+        // e chame `startGame()` aqui após initializeGame(), mas isso mudaria a UX.
+        // O comportamento atual é: Reiniciar leva de volta à tela de início.
+    });
+    victoryRestartButton.addEventListener('click', initializeGame); // Reinicia e volta para a intro
 
-    // Chamada inicial do jogo
+    // Chamada inicial do jogo ao carregar a página
+    // Isso prepara o canvas e a grade, mas mantém a tela de introdução visível.
     initializeGame();
 
-    // Adicionar um listener para redimensionamento da janela
-    // Isso é VITAL para garantir que o canvas seja redimensionado e os cálculos atualizados
-    // se o usuário girar o celular ou redimensionar a janela do navegador.
+    // Listener para redimensionamento da janela
+    // Importante para reajustar o canvas e a lógica de toque/clique
     window.addEventListener('resize', initializeGame);
 });
