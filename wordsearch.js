@@ -12,13 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const victoryMessage = document.getElementById('victory-message');
     const timerDisplay = document.getElementById('timer-display');
 
-    // --- NOVOS ELEMENTOS DE ÁUDIO ---
     const soundCorrect = new Audio('sons/acerto.mp3');
-    const soundVictory = new Audio('sons/vitoria.mp3'); // Corrigido 'vitoria.mpraudio' para 'vitoria.mp3'
-    // Você pode ajustar o volume se achar muito alto
+    const soundVictory = new Audio('sons/vitoria.mp3'); // Certifique-se de que o nome do arquivo está correto
     soundCorrect.volume = 0.5;
     soundVictory.volume = 0.7;
-    // --- FIM DOS NOVOS ELEMENTOS DE ÁUDIO ---
 
     const ALL_WORD_SETS = [
         ["MOISÉS", "DAVI", "ESTER", "NOÉ", "MARTA", "PEDRO", "PAULO", "JOÃO", "ABRAÃO", "SARA", "JESUS", "DEUS"],
@@ -29,9 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const GRID_SIZE = 15;
-    // REMOVIDO: const CELL_SIZE = canvas.width / GRID_SIZE; // <-- ESTA LINHA E A PRÓXIMA CAUSAVAM O PROBLEMA
-    // REMOVIDO: const FONT_SIZE = CELL_SIZE * 0.6;
     const FONT_FAMILY = 'Arial Black, Arial, sans-serif';
+
+    // Essas variáveis serão definidas dinamicamente em initializeGame()
+    let CELL_SIZE;
+    let FONT_SIZE;
 
     let grid = [];
     let currentWords = [];
@@ -56,31 +55,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function initializeGame() {
-        // ESSENCIAL: Redimensionar o canvas para o tamanho que ele está sendo renderizado pelo CSS
-        // Isso é crucial para que o CELL_SIZE e os cálculos de toque/mouse funcionem corretamente.
+        // Obter as dimensões do canvas conforme renderizadas pelo CSS
         const computedStyle = window.getComputedStyle(canvas);
-        const cssWidth = parseFloat(computedStyle.width); // Pega a largura computada pelo CSS
-        const cssHeight = parseFloat(computedStyle.height); // Pega a altura computada pelo CSS
+        const cssWidth = parseFloat(computedStyle.width);
+        const cssHeight = parseFloat(computedStyle.height); // O CSS define height: auto, então esta será a altura computada.
 
-        // Ajusta as dimensões internas do canvas para corresponder às dimensões de renderização
-        // Isso evita o problema de "estiramento" quando o canvas.width/height é diferente do que o CSS mostra
-        // IMPORTANTE: use o devicePixelRatio para telas de alta densidade para evitar embaçamento
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = window.devicePixelRatio || 1; // Device Pixel Ratio para telas de alta densidade
+
+        // Definir as dimensões internas do canvas em pixels "reais" da tela.
+        // Isso é crucial para que o desenho não fique embaçado em telas de alta densidade
+        // e para que os cálculos de clique sejam precisos.
         canvas.width = cssWidth * dpr;
         canvas.height = cssHeight * dpr;
-        ctx.scale(dpr, dpr); // Escala o contexto para desenhar na resolução correta
 
-        // Agora, calcule CELL_SIZE e FONT_SIZE com base na *largura visual* (não a interna que foi ajustada pelo dpr)
-        // ou use as dimensões internas do canvas divididas pelo dpr
-        // Vamos usar a largura interna do canvas e dividir pelo dpr para obter o tamanho visual correto.
-        const CELL_SIZE = (canvas.width / dpr) / GRID_SIZE;
-        const FONT_SIZE = CELL_SIZE * 0.6;
+        // Resetar a escala do contexto de desenho para 1 antes de aplicar a nova escala
+        // Isso é importante se initializeGame for chamado múltiplas vezes (ex: resize)
+        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reseta a matriz de transformação
+        ctx.scale(dpr, dpr); // Aplica a escala para desenhar na resolução correta
 
-        // Configurações do contexto de desenho que dependem de FONT_SIZE e CELL_SIZE
+        // Agora, calcule CELL_SIZE com base na largura *visual* (CSS width)
+        // Isso garante que o CELL_SIZE corresponda ao que o usuário vê
+        CELL_SIZE = cssWidth / GRID_SIZE; // Usamos cssWidth aqui, não canvas.width, pois já aplicamos o DPR ao canvas
+        FONT_SIZE = CELL_SIZE * 0.6;
+
+        // Configurar as propriedades do contexto de desenho
         ctx.font = `${FONT_SIZE}px ${FONT_FAMILY}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-
 
         grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''));
         foundWords = new Set();
@@ -183,60 +184,43 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function getCellCoordsFromMouse(e) {
-        const rect = canvas.getBoundingClientRect();
-        // Ajuste: Use a largura/altura *visual* do canvas (rect.width/height)
-        // para escalar as coordenadas do mouse para a escala do canvas.
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
+    // Função para obter coordenadas da célula a partir de um evento de mouse/toque
+    function getCellCoords(event) {
+        const rect = canvas.getBoundingClientRect(); // Posição e tamanho do canvas na viewport
+        let clientX, clientY;
 
-        const x = (e.clientX - rect.left) * scaleX;
-        const y = (e.clientY - rect.top) * scaleY;
+        // Diferencia entre evento de mouse e toque
+        if (event.type.startsWith('touch')) {
+            clientX = event.changedTouches[0].clientX;
+            clientY = event.changedTouches[0].clientY;
+        } else {
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
 
-        // Recalcular CELL_SIZE para a detecção de toque/mouse
-        const CELL_SIZE_FOR_COORDS = (canvas.width / (window.devicePixelRatio || 1)) / GRID_SIZE;
+        // Calcula a posição do clique/toque relativa ao canvas (em pixels CSS)
+        const xInCssPixels = clientX - rect.left;
+        const yInCssPixels = clientY - rect.top;
 
-        const col = Math.floor(x / CELL_SIZE_FOR_COORDS);
-        const row = Math.floor(y / CELL_SIZE_FOR_COORDS);
-        return { row, col };
-    }
-
-    function getCellCoordsFromTouch(e) {
-        const touch = e.changedTouches[0];
-        const rect = canvas.getBoundingClientRect();
-        // Ajuste: Use a largura/altura *visual* do canvas (rect.width/height)
-        // para escalar as coordenadas do toque para a escala do canvas.
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-
-        const x = (touch.clientX - rect.left) * scaleX;
-        const y = (touch.clientY - rect.top) * scaleY;
-
-        // Recalcular CELL_SIZE para a detecção de toque/mouse
-        const CELL_SIZE_FOR_COORDS = (canvas.width / (window.devicePixelRatio || 1)) / GRID_SIZE;
-
-        const col = Math.floor(x / CELL_SIZE_FOR_COORDS);
-        const row = Math.floor(y / CELL_SIZE_FOR_COORDS);
+        // Converte para coordenadas da célula usando o CELL_SIZE que corresponde aos pixels CSS
+        const col = Math.floor(xInCssPixels / CELL_SIZE);
+        const row = Math.floor(yInCssPixels / CELL_SIZE);
+        
         return { row, col };
     }
 
     function drawGrid() {
-        // Recalcular CELL_SIZE e FONT_SIZE sempre que for desenhar,
-        // garantindo que se adaptem ao tamanho atual do canvas.
-        // A proporção é sempre mantida, mas a dimensão em pixels pode variar.
-        const CELL_SIZE = (canvas.width / (window.devicePixelRatio || 1)) / GRID_SIZE;
-        const FONT_SIZE = CELL_SIZE * 0.6;
-
         ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa toda a área de desenho do canvas
-        
-        // Re-definir font aqui caso o CELL_SIZE tenha mudado desde initializeGame
+
+        // Certifique-se de que a fonte é definida aqui novamente, caso CELL_SIZE tenha mudado
         ctx.font = `${FONT_SIZE}px ${FONT_FAMILY}`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
         for (let r = 0; r < GRID_SIZE; r++) {
             for (let c = 0; c < GRID_SIZE; c++) {
-                // Desenha usando o CELL_SIZE calculado para a exibição (já com o dpr no ctx.scale)
+                // As coordenadas de desenho usam CELL_SIZE (em pixels CSS), e o ctx.scale(dpr, dpr)
+                // já se encarrega de mapear isso para os pixels físicos da tela.
                 const x = c * CELL_SIZE + CELL_SIZE / 2;
                 const y = r * CELL_SIZE + CELL_SIZE / 2;
 
@@ -249,12 +233,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function drawFoundWords() {
-        // CELL_SIZE precisa ser acessível aqui também.
-        const CELL_SIZE = (canvas.width / (window.devicePixelRatio || 1)) / GRID_SIZE;
-
         ctx.lineWidth = CELL_SIZE * 0.7;
         ctx.lineCap = 'round';
-        ctx.strokeStyle = '#b3ffb3'; // Adicionado para garantir a cor de linha
+        ctx.strokeStyle = '#b3ffb3';
 
         foundWords.forEach(word => {
             let wordPath = [];
@@ -297,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.stroke();
 
                 ctx.fillStyle = '#333';
-                ctx.font = `${(CELL_SIZE * 0.6)}px ${FONT_FAMILY}`; // Usar FONT_SIZE recalculado
+                ctx.font = `${FONT_SIZE}px ${FONT_FAMILY}`;
                 wordPath.forEach(cell => {
                     const x = cell.col * CELL_SIZE + CELL_SIZE / 2;
                     const y = cell.row * CELL_SIZE + CELL_SIZE / 2;
@@ -309,9 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function drawCurrentSelection() {
         if (currentSelectionPath.length > 0) {
-            // CELL_SIZE precisa ser acessível aqui também.
-            const CELL_SIZE = (canvas.width / (window.devicePixelRatio || 1)) / GRID_SIZE;
-
             ctx.lineWidth = CELL_SIZE * 0.7;
             ctx.lineCap = 'round';
             ctx.strokeStyle = '#cfe8fc';
@@ -330,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.stroke();
 
             ctx.fillStyle = '#000';
-            ctx.font = `${(CELL_SIZE * 0.6)}px ${FONT_FAMILY}`; // Usar FONT_SIZE recalculado
+            ctx.font = `${FONT_SIZE}px ${FONT_FAMILY}`;
             currentSelectionPath.forEach(cell => {
                 const x = cell.col * CELL_SIZE + CELL_SIZE / 2;
                 const y = cell.row * CELL_SIZE + CELL_SIZE / 2;
@@ -434,17 +412,23 @@ document.addEventListener('DOMContentLoaded', () => {
         gameContainer.querySelectorAll('.confetti').forEach(c => c.remove());
 
         const containerWidth = gameContainer.offsetWidth;
-        const containerHeight = gameContainer.offsetHeight;
+        // A altura do container para os confetes deve ser o máximo entre a altura do container e a altura da tela
+        // para garantir que eles caiam até o fim.
+        const containerHeight = Math.max(gameContainer.offsetHeight, window.innerHeight); 
 
         for (let i = 0; i < 100; i++) {
             const confetti = document.createElement('div');
             confetti.classList.add('confetti');
             confetti.style.left = `${Math.random() * containerWidth}px`;
-            confetti.style.top = `-20px`;
+            confetti.style.top = `-20px`; // Começa um pouco acima da borda superior
             confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
             confetti.style.animationDelay = `${Math.random() * 2}s`;
             confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 70%)`;
             gameContainer.appendChild(confetti);
+
+            // Ajusta o keyframe da animação para garantir que os confetes caiam completamente
+            // Isso precisa ser feito dinamicamente ou no CSS se o CSS já permite 'calc()'
+            // No seu CSS já tem `translateY(calc(100% + 20px))` que funciona para isso.
         }
     }
 
@@ -463,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Eventos de Mouse ---
     canvas.addEventListener('mousedown', (e) => {
-        startCellCoords = getCellCoordsFromMouse(e);
+        startCellCoords = getCellCoords(e); // Usa a função unificada
         endCellCoords = startCellCoords;
         isSelecting = true;
         currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
@@ -472,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     canvas.addEventListener('mousemove', (e) => {
         if (isSelecting) {
-            const currentCoords = getCellCoordsFromMouse(e);
+            const currentCoords = getCellCoords(e); // Usa a função unificada
             if (currentCoords.row !== endCellCoords.row || currentCoords.col !== endCellCoords.col) {
                 endCellCoords = currentCoords;
                 currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
@@ -495,25 +479,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Eventos de Toque (Touch) ---
     canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        startCellCoords = getCellCoordsFromTouch(e);
+        e.preventDefault(); // Permite que você "arraste" no canvas sem rolar a página
+        startCellCoords = getCellCoords(e); // Usa a função unificada
         endCellCoords = startCellCoords;
         isSelecting = true;
         currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
         drawGrid();
-    }, { passive: false });
+    }, { passive: false }); // { passive: false } é importante para que preventDefault funcione
 
     canvas.addEventListener('touchmove', (e) => {
         if (isSelecting) {
-            e.preventDefault();
-            const currentCoords = getCellCoordsFromTouch(e);
+            e.preventDefault(); // Permite que você "arraste" no canvas sem rolar a página
+            const currentCoords = getCellCoords(e); // Usa a função unificada
             if (currentCoords.row !== endCellCoords.row || currentCoords.col !== endCellCoords.col) {
                 endCellCoords = currentCoords;
                 currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
                 drawGrid();
             }
         }
-    }, { passive: false });
+    }, { passive: false }); // { passive: false } é importante para que preventDefault funcione
 
     canvas.addEventListener('touchend', (e) => {
         if (isSelecting) {
@@ -527,14 +511,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
     restartButton.addEventListener('click', initializeGame);
     victoryRestartButton.addEventListener('click', initializeGame);
 
     // Chamada inicial do jogo
     initializeGame();
 
-    // Opcional: Adicionar um listener para redimensionamento da janela
-    // Isso é útil se você não usa uma largura fixa e o canvas pode mudar de tamanho após o carregamento
+    // Adicionar um listener para redimensionamento da janela
+    // Isso é VITAL para garantir que o canvas seja redimensionado e os cálculos atualizados
+    // se o usuário girar o celular ou redimensionar a janela do navegador.
     window.addEventListener('resize', initializeGame);
 });
