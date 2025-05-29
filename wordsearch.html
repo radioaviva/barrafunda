@@ -7,21 +7,31 @@
     <link rel="stylesheet" href="wordsearch.css">
 </head>
 <body>
-    <div class="container-wordsearch">
-        <h1>Caça-Palavras Bíblico</h1>
-        <div id="timer-display">Tempo: 00:00</div>
-        <div class="game-area-wordsearch">
-            <canvas id="wordSearchCanvas" width="500" height="500"></canvas>
-            <div class="word-list-container-wordsearch">
-                <h2>Palavras para Encontrar:</h2>
-                <ul id="word-list">
-                </ul>
-            </div>
+    <div class="body-wordsearch">
+        <div id="intro-screen" class="intro-screen">
+            <h1>Caça-Palavras Bíblico</h1>
+            <p>Encontre as palavras escondidas e teste seus conhecimentos!</p>
+            <button id="play-button" class="action-button">Jogar</button>
         </div>
-        <button id="restart-button" class="action-button">Reiniciar Jogo</button>
-        <div id="victory-message" class="victory-message" style="display:none;">
-            <p>Parabéns! Você encontrou todas as palavras!</p>
-            <button id="victory-restart-button" class="action-button">Jogar Novamente</button>
+
+        <div id="game-overlay" class="game-overlay"></div>
+
+        <div class="container-wordsearch">
+            <h1>Caça-Palavras Bíblico</h1>
+            <div id="timer-display">Tempo: 00:00</div>
+            <div class="game-area-wordsearch">
+                <canvas id="wordSearchCanvas" width="500" height="500"></canvas>
+                <div class="word-list-container-wordsearch">
+                    <h2>Palavras para Encontrar:</h2>
+                    <ul id="word-list">
+                    </ul>
+                </div>
+            </div>
+            <button id="restart-button" class="action-button">Reiniciar Jogo</button>
+            <div id="victory-message" class="victory-message" style="display:none;">
+                <p>Parabéns! Você encontrou todas as palavras!</p>
+                <button id="victory-restart-button" class="action-button">Jogar Novamente</button>
+            </div>
         </div>
     </div>
     <script src="wordsearch.js"></script>
