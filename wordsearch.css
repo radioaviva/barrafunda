@@ -10,12 +10,67 @@
     padding: 0; /* Remover padding padrão do body */
     width: 100%; /* Garantir que o wrapper do jogo ocupe o espaço disponível */
 
-    /* ESSENCIAL: Adiciona position: relative para que os confetes sejam posicionados em relação a este elemento */
+    /* ESSENCIAL: Adiciona position: relative para que os confetes e overlays sejam posicionados em relação a este elemento */
     position: relative;
-    /* ESSENCIAL: Garante que os confetes não vazem para fora desta área */
+    /* ESSENCIAL: Garante que os confetes e overlays não vazem para fora desta área */
     overflow: hidden;
     /* NOVO: Define uma altura mínima para a área do jogo, ou pode usar flex-grow no .container-wordsearch se preferir */
     min-height: 700px; /* Ajuste esta altura se o seu jogo for maior ou menor */
+}
+
+/* NOVO: Estilo para a tela de introdução */
+.intro-screen {
+    position: absolute; /* Posição absoluta para cobrir o conteúdo do jogo */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #fff; /* Fundo branco, ou algo que combine com seu site */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 20; /* Certifique-se de que está acima do jogo e do overlay */
+    transition: opacity 0.5s ease-out, visibility 0.5s ease-out; /* Transição suave */
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.intro-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none; /* Impede cliques quando invisível */
+}
+
+.intro-screen h1 {
+    color: #0d47a1;
+    font-size: 3em;
+    margin-bottom: 15px;
+}
+
+.intro-screen p {
+    font-size: 1.5em;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+/* NOVO: Estilo para o overlay de escurecimento */
+.game-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Cor preta com 50% de opacidade */
+    z-index: 5; /* Abaixo da tela de introdução, acima do jogo */
+    display: none; /* Inicialmente oculto */
+    transition: opacity 0.5s ease-in-out;
+}
+
+.game-overlay.visible {
+    display: block; /* Torna visível */
+    opacity: 1;
 }
 
 /* Alterado de .container para .container-wordsearch para evitar conflitos */
@@ -32,6 +87,9 @@
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
+    /* Ajuste para que o jogo fique acima do overlay quando ativo */
+    position: relative; /* Necessário para z-index */
+    z-index: 10;
 }
 
 /* Títulos h1 e h2 do jogo - podem ser específicos ou gerais */
@@ -155,7 +213,6 @@
 
 @keyframes confetti-fall {
     0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } /* Começa um pouco acima */
-    /* NOVO: Cai até o final do contêiner pai, 100% da altura do `.body-wordsearch` + 20px para sair completamente */
     100% { transform: translateY(calc(100% + 20px)) rotate(720deg); opacity: 0; }
 }
 
@@ -205,6 +262,9 @@
     .body-wordsearch { /* NOVO: Ajuste a altura mínima para telas menores */
         min-height: 600px;
     }
+    /* NOVO: Ajuste para a tela de introdução em telas menores */
+    .intro-screen h1 { font-size: 2.2em; }
+    .intro-screen p { font-size: 1.2em; }
 }
 
 /* Telas menores que 480px (celulares) */
@@ -225,4 +285,7 @@
     .body-wordsearch { /* NOVO: Ajuste a altura mínima para telas muito pequenas */
         min-height: 550px;
     }
+    /* NOVO: Ajuste para a tela de introdução em telas muito pequenas */
+    .intro-screen h1 { font-size: 1.8em; }
+    .intro-screen p { font-size: 1em; }
 }
