@@ -1,291 +1,455 @@
 /* Para isolar os estilos do jogo, usamos '.body-wordsearch' como wrapper */
+
 .body-wordsearch {
-    /* Estas propriedades são para o caça-palavras agir como uma seção separada */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: none; /* Remover o gradiente de fundo se o body principal já tem um */
-    margin: 0;
-    color: #333;
-    padding: 0; /* Remover padding padrão do body */
-    width: 100%; /* Garantir que o wrapper do jogo ocupe o espaço disponível */
 
-    /* ESSENCIAL: Adiciona position: relative para que os confetes e overlays sejam posicionados em relação a este elemento */
-    position: relative;
-    /* ESSENCIAL: Garante que os confetes e overlays não vazem para fora desta área */
-    overflow: hidden;
-    /* NOVO: Define uma altura mínima para a área do jogo, ou pode usar flex-grow no .container-wordsearch se preferir */
-    min-height: 700px; /* Ajuste esta altura se o seu jogo for maior ou menor */
+    /* Estas propriedades são para o caça-palavras agir como uma seção separada */
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background: none; /* Remover o gradiente de fundo se o body principal já tem um */
+
+    margin: 0;
+
+    color: #333;
+
+    padding: 0; /* Remover padding padrão do body */
+
+    width: 100%; /* Garantir que o wrapper do jogo ocupe o espaço disponível */
+
+
+
+    /* ESSENCIAL: Adiciona position: relative para que os confetes sejam posicionados em relação a este elemento */
+
+    position: relative;
+
+    /* ESSENCIAL: Garante que os confetes não vazem para fora desta área */
+
+    overflow: hidden;
+
+    /* NOVO: Define uma altura mínima para a área do jogo, ou pode usar flex-grow no .container-wordsearch se preferir */
+
+    min-height: 700px; /* Ajuste esta altura se o seu jogo for maior ou menor */
+
 }
 
-/* NOVO: Estilo para a tela de introdução */
-.intro-screen {
-    position: absolute; /* Posição absoluta para cobrir o conteúdo do jogo */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #fff; /* Fundo branco, ou algo que combine com seu site */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 20; /* Certifique-se de que está acima do jogo e do overlay */
-    transition: opacity 0.5s ease-out, visibility 0.5s ease-out; /* Transição suave */
-    padding: 20px;
-    box-sizing: border-box;
-    text-align: center;
-}
 
-.intro-screen.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none; /* Impede cliques quando invisível */
-}
-
-.intro-screen h1 {
-    color: #0d47a1;
-    font-size: 3em;
-    margin-bottom: 15px;
-}
-
-.intro-screen p {
-    font-size: 1.5em;
-    color: #555;
-    margin-bottom: 30px;
-}
-
-/* NOVO: Estilo para o overlay de escurecimento */
-.game-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Cor preta com 50% de opacidade */
-    z-index: 5; /* Abaixo da tela de introdução, acima do jogo */
-    display: none; /* Inicialmente oculto */
-    transition: opacity 0.5s ease-in-out;
-}
-
-.game-overlay.visible {
-    display: block; /* Torna visível */
-    opacity: 1;
-}
 
 /* Alterado de .container para .container-wordsearch para evitar conflitos */
+
 .container-wordsearch {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    max-width: 950px;
-    width: 95%;
-    margin: 20px auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
-    /* Ajuste para que o jogo fique acima do overlay quando ativo */
-    position: relative; /* Necessário para z-index */
-    z-index: 10;
+
+    background-color: #fff;
+
+    padding: 30px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+
+    text-align: center;
+
+    max-width: 950px;
+
+    width: 95%;
+
+    margin: 20px auto;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    box-sizing: border-box;
+
 }
+
+
 
 /* Títulos h1 e h2 do jogo - podem ser específicos ou gerais */
+
 .container-wordsearch h1 { /* Mais específico para não afetar outros h1 */
-    color: #0d47a1;
-    margin-bottom: 20px;
-    font-size: 2.5em;
+
+    color: #0d47a1;
+
+    margin-bottom: 20px;
+
+    font-size: 2.5em;
+
 }
+
+
 
 .container-wordsearch h2 { /* Mais específico para não afetar outros h2 */
-    color: #1a237e;
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.8em;
+
+    color: #1a237e;
+
+    margin-top: 0;
+
+    margin-bottom: 15px;
+
+    font-size: 1.8em;
+
 }
+
+
 
 /* Alterado de .game-area para .game-area-wordsearch para evitar conflitos */
+
 .game-area-wordsearch {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    margin-bottom: 20px;
-    width: 100%;
-    align-items: flex-start;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 30px;
+
+    margin-bottom: 20px;
+
+    width: 100%;
+
+    align-items: flex-start;
+
 }
+
+
 
 #wordSearchCanvas {
-    border: 2px solid #0d47a1;
-    border-radius: 8px;
-    background-color: #f0f8ff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    height: auto;
-    display: block;
+
+    border: 2px solid #0d47a1;
+
+    border-radius: 8px;
+
+    background-color: #f0f8ff;
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+    max-width: 500px;
+
+    height: auto;
+
+    display: block;
+
 }
+
+
 
 /* Alterado de .word-list-container para .word-list-container-wordsearch para evitar conflitos */
+
 .word-list-container-wordsearch {
-    background-color: #f9fcff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
-    flex-grow: 1;
-    min-width: 250px;
-    box-sizing: border-box;
+
+    background-color: #f9fcff;
+
+    padding: 20px;
+
+    border-radius: 10px;
+
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
+
+    flex-grow: 1;
+
+    min-width: 250px;
+
+    box-sizing: border-box;
+
 }
+
+
 
 #word-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
+
+    list-style: none;
+
+    padding: 0;
+
+    margin: 0;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 12px;
+
 }
+
+
 
 #word-list li {
-    background-color: #e3f2fd;
-    padding: 8px 15px;
-    border-radius: 20px;
-    border: 1px solid #cce7fc;
-    color: #0d47a1;
-    font-weight: bold;
-    font-size: 1.1em;
-    transition: background-color 0.3s, color 0.3s, text-decoration 0.3s;
-    white-space: nowrap;
+
+    background-color: #e3f2fd;
+
+    padding: 8px 15px;
+
+    border-radius: 20px;
+
+    border: 1px solid #cce7fc;
+
+    color: #0d47a1;
+
+    font-weight: bold;
+
+    font-size: 1.1em;
+
+    transition: background-color 0.3s, color 0.3s, text-decoration 0.3s;
+
+    white-space: nowrap;
+
 }
+
+
 
 #word-list li.found-word {
-    text-decoration: line-through;
-    color: #4CAF50;
-    background-color: #e8f5e9;
-    border-color: #c8e6c9;
+
+    text-decoration: line-through;
+
+    color: #4CAF50;
+
+    background-color: #e8f5e9;
+
+    border-color: #c8e6c9;
+
 }
+
+
 
 .action-button {
-    background-color: #0d47a1;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 8px;
-    font-size: 1.2em;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s ease, transform 0.2s;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+    background-color: #0d47a1;
+
+    color: white;
+
+    border: none;
+
+    padding: 12px 25px;
+
+    border-radius: 8px;
+
+    font-size: 1.2em;
+
+    cursor: pointer;
+
+    margin-top: 20px;
+
+    transition: background-color 0.3s ease, transform 0.2s;
+
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
 }
+
+
 
 .action-button:hover {
-    background-color: #1a237e;
-    transform: translateY(-2px);
+
+    background-color: #1a237e;
+
+    transform: translateY(-2px);
+
 }
+
+
 
 .victory-message {
-    margin-top: 30px;
-    font-size: 1.8em;
-    color: #2e7d32;
-    font-weight: bold;
-    display: none;
-    animation: slideIn 0.8s ease-out forwards;
+
+    margin-top: 30px;
+
+    font-size: 1.8em;
+
+    color: #2e7d32;
+
+    font-weight: bold;
+
+    display: none;
+
+    animation: slideIn 0.8s ease-out forwards;
+
 }
+
+
 
 @keyframes slideIn {
-    0% { opacity: 0; transform: translateY(50px); }
-    100% { opacity: 1; transform: translateY(0); }
+
+    0% { opacity: 0; transform: translateY(50px); }
+
+    100% { opacity: 1; transform: translateY(0); }
+
 }
+
+
 
 /* Confetti animation */
+
 .confetti {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background-color: #ffd700;
-    opacity: 0;
-    animation: confetti-fall linear infinite;
-    z-index: 10; /* Valor alto para garantir que esteja acima do jogo */
-    border-radius: 50%;
+
+    position: absolute;
+
+    width: 10px;
+
+    height: 10px;
+
+    background-color: #ffd700;
+
+    opacity: 0;
+
+    animation: confetti-fall linear infinite;
+
+    z-index: 10; /* Valor alto para garantir que esteja acima do jogo */
+
+    border-radius: 50%;
+
 }
+
+
 
 @keyframes confetti-fall {
-    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } /* Começa um pouco acima */
-    100% { transform: translateY(calc(100% + 20px)) rotate(720deg); opacity: 0; }
+
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } /* Começa um pouco acima */
+
+    /* NOVO: Cai até o final do contêiner pai, 100% da altura do `.body-wordsearch` + 20px para sair completamente */
+
+    100% { transform: translateY(calc(100% + 20px)) rotate(720deg); opacity: 0; }
+
 }
+
+
 
 .confetti:nth-child(even) { background-color: #ff6f61; animation-delay: 0.5s; }
+
 .confetti:nth-child(3n) { background-color: #88d8b0; animation-delay: 1s; }
+
 .confetti:nth-child(4n) { background-color: #6a0572; animation-delay: 1.5s; }
+
 .confetti:nth-child(5n) { background-color: #f7cac9; animation-delay: 2s; }
+
 .confetti:nth-child(odd) { background-color: #4CAF50; animation-delay: 0.2s; }
+
 .confetti:nth-child(6n) { background-color: #1e88e5; animation-delay: 0.8s; }
 
+
+
 /* Estilo para o display do timer */
+
 #timer-display {
-    font-size: 1.5em;
-    font-weight: bold;
-    color: #0d47a1; /* Cor para combinar com seu site */
-    margin-bottom: 15px;
-    text-align: center;
+
+    font-size: 1.5em;
+
+    font-weight: bold;
+
+    color: #0d47a1; /* Cor para combinar com seu site */
+
+    margin-bottom: 15px;
+
+    text-align: center;
+
 }
+
+
+
 
 
 /* --- Media Queries para Responsividade --- */
 
+
+
 /* Telas menores que 768px (tablets e celulares em landscape) */
+
 @media (max-width: 768px) {
-    .container-wordsearch { /* Alterado */
-        padding: 20px;
-        margin: 10px auto;
-    }
-    .game-area-wordsearch { /* Alterado */
-        flex-direction: column;
-        gap: 20px;
-    }
-    #wordSearchCanvas {
-        width: 100%;
-        max-width: 400px;
-        margin: 0 auto;
-    }
-    .word-list-container-wordsearch { /* Alterado */
-        min-width: unset;
-        width: 100%;
-    }
-    .container-wordsearch h1 { font-size: 2em; } /* Mais específico */
-    .container-wordsearch h2 { font-size: 1.5em; } /* Mais específico */
-    #word-list li { font-size: 0.95em; padding: 7px 14px; }
-    .victory-message { font-size: 1.6em; }
-    .action-button { font-size: 1.1em; padding: 10px 22px; }
-    .body-wordsearch { /* NOVO: Ajuste a altura mínima para telas menores */
-        min-height: 600px;
-    }
-    /* NOVO: Ajuste para a tela de introdução em telas menores */
-    .intro-screen h1 { font-size: 2.2em; }
-    .intro-screen p { font-size: 1.2em; }
+
+    .container-wordsearch { /* Alterado */
+
+        padding: 20px;
+
+        margin: 10px auto;
+
+    }
+
+    .game-area-wordsearch { /* Alterado */
+
+        flex-direction: column;
+
+        gap: 20px;
+
+    }
+
+    #wordSearchCanvas {
+
+        width: 100%;
+
+        max-width: 400px;
+
+        margin: 0 auto;
+
+    }
+
+    .word-list-container-wordsearch { /* Alterado */
+
+        min-width: unset;
+
+        width: 100%;
+
+    }
+
+    .container-wordsearch h1 { font-size: 2em; } /* Mais específico */
+
+    .container-wordsearch h2 { font-size: 1.5em; } /* Mais específico */
+
+    #word-list li { font-size: 0.95em; padding: 7px 14px; }
+
+    .victory-message { font-size: 1.6em; }
+
+    .action-button { font-size: 1.1em; padding: 10px 22px; }
+
+    .body-wordsearch { /* NOVO: Ajuste a altura mínima para telas menores */
+
+        min-height: 600px;
+
+    }
+
 }
 
-/* Telas menores que 480px (celulares) */
-@media (max-width: 480px) {
-    .container-wordsearch { /* Alterado */
-        padding: 15px;
-        margin: 5px auto;
-    }
-    .container-wordsearch h1 { font-size: 1.8em; margin-bottom: 15px; } /* Mais específico */
-    .container-wordsearch h2 { font-size: 1.3em; margin-bottom: 10px; } /* Mais específico */
-    #word-list li { font-size: 0.85em; padding: 6px 12px; gap: 8px; }
-    .victory-message { font-size: 1.3em; }
-    .action-button { font-size: 1em; padding: 8px 18px; }
 
-    #wordSearchCanvas {
-        max-width: 90vw;
-    }
-    .body-wordsearch { /* NOVO: Ajuste a altura mínima para telas muito pequenas */
-        min-height: 550px;
-    }
-    /* NOVO: Ajuste para a tela de introdução em telas muito pequenas */
-    .intro-screen h1 { font-size: 1.8em; }
-    .intro-screen p { font-size: 1em; }
+
+/* Telas menores que 480px (celulares) */
+
+@media (max-width: 480px) {
+
+    .container-wordsearch { /* Alterado */
+
+        padding: 15px;
+
+        margin: 5px auto;
+
+    }
+
+    .container-wordsearch h1 { font-size: 1.8em; margin-bottom: 15px; } /* Mais específico */
+
+    .container-wordsearch h2 { font-size: 1.3em; margin-bottom: 10px; } /* Mais específico */
+
+    #word-list li { font-size: 0.85em; padding: 6px 12px; gap: 8px; }
+
+    .victory-message { font-size: 1.3em; }
+
+    .action-button { font-size: 1em; padding: 8px 18px; }
+
+
+
+    #wordSearchCanvas {
+
+        max-width: 90vw;
+
+    }
+
+    .body-wordsearch { /* NOVO: Ajuste a altura mínima para telas muito pequenas */
+
+        min-height: 550px;
+
+    }
+
 }
