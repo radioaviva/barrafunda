@@ -14,18 +14,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- NOVOS ELEMENTOS DE ÁUDIO ---
     const soundCorrect = new Audio('sons/acerto.mp3');
-    const soundVictory = new Audio('sons/vitoria.mp3');
+    const soundVictory = new Audio('sons/vitoria.mpraudio');
     // Você pode ajustar o volume se achar muito alto
     soundCorrect.volume = 0.5;
     soundVictory.volume = 0.7;
     // --- FIM DOS NOVOS ELEMENTOS DE ÁUDIO ---
 
     const ALL_WORD_SETS = [
-        [ "MOISÉS", "DAVI", "ESTER", "NOÉ", "MARTA", "PEDRO", "PAULO", "JOÃO", "ABRAÃO", "SARA", "JESUS", "DEUS" ],
-        [ "ISAIAS", "JEREMIAS", "EZEQUIEL", "DANIEL", "OSEIAS", "JOEL", "AMOS", "OBADIAS", "JONAS", "MIQUEIAS" ],
-        [ "MARIA", "JOSÉ", "ANA", "ELIAS", "SAMUEL", "JUDAS", "CALEBE", "GIDEAO", "DEBORA", "RUTE" ],
-        [ "REBECA", "JACÓ", "RAQUEL", "ISAQUE", "LABAO", "ESAÚ", "LEIA", "SIMAO", "BENJAMIM", "GOLIAS" ],
-        [ "GABRIEL", "MIGUEL", "RAFAEL", "ZACARIAS", "ISABEL", "JOANA", "TOMÉ", "MATEUS", "FILIPE", "ANDRÉ" ]
+        ["MOISÉS", "DAVI", "ESTER", "NOÉ", "MARTA", "PEDRO", "PAULO", "JOÃO", "ABRAÃO", "SARA", "JESUS", "DEUS"],
+        ["ISAIAS", "JEREMIAS", "EZEQUIEL", "DANIEL", "OSEIAS", "JOEL", "AMOS", "OBADIAS", "JONAS", "MIQUEIAS"],
+        ["MARIA", "JOSÉ", "ANA", "ELIAS", "SAMUEL", "JUDAS", "CALEBE", "GIDEAO", "DEBORA", "RUTE"],
+        ["REBECA", "JACÓ", "RAQUEL", "ISAQUE", "LABAO", "ESAÚ", "LEIA", "SIMAO", "BENJAMIM", "GOLIAS"],
+        ["GABRIEL", "MIGUEL", "RAFAEL", "ZACARIAS", "ISABEL", "JOANA", "TOMÉ", "MATEUS", "FILIPE", "ANDRÉ"]
     ];
 
     const GRID_SIZE = 15;
@@ -46,12 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let secondsElapsed = 0;
 
     const directions = [
-        { dr: 0, dc: 1 },   // Direita
-        { dr: 1, dc: 0 },   // Baixo
-        { dr: 1, dc: 1 },   // Baixo-direita
-        { dr: 1, dc: -1 },  // Baixo-esquerda
-        { dr: -1, dc: 1 },  // Cima-direita (diagonal)
-        { dr: -1, dc: -1 }  // Cima-esquerda (diagonal)
+        { dr: 0, dc: 1 },    // Direita
+        { dr: 1, dc: 0 },    // Baixo
+        { dr: 1, dc: 1 },    // Baixo-direita
+        { dr: 1, dc: -1 },   // Baixo-esquerda
+        { dr: -1, dc: 1 },   // Cima-direita (diagonal)
+        { dr: -1, dc: -1 }   // Cima-esquerda (diagonal)
     ];
 
 
@@ -93,12 +93,12 @@ document.addEventListener('DOMContentLoaded', () => {
             let attempts = 0;
             while (!placed && attempts < 1000) {
                 const placementDirections = [
-                    { dr: 0, dc: 1 },   // Direita
-                    { dr: 1, dc: 0 },   // Baixo
-                    { dr: 1, dc: 1 },   // Baixo-direita
-                    { dr: 1, dc: -1 },  // Baixo-esquerda
-                    { dr: -1, dc: 1 },  // Cima-direita
-                    { dr: -1, dc: -1 }  // Cima-esquerda
+                    { dr: 0, dc: 1 },    // Direita
+                    { dr: 1, dc: 0 },    // Baixo
+                    { dr: 1, dc: 1 },    // Baixo-direita
+                    { dr: 1, dc: -1 },   // Baixo-esquerda
+                    { dr: -1, dc: 1 },   // Cima-direita
+                    { dr: -1, dc: -1 }   // Cima-esquerda
                 ];
                 const dir = placementDirections[Math.floor(Math.random() * placementDirections.length)];
                 const startRow = Math.floor(Math.random() * GRID_SIZE);
@@ -162,6 +162,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
+        const col = Math.floor(x / CELL_SIZE);
+        const row = Math.floor(y / CELL_SIZE);
+        return { row, col };
+    }
+
+    // NOVA FUNÇÃO PARA TOUCH
+    function getCellCoordsFromTouch(e) {
+        // Usa `changedTouches[0]` para pegar o primeiro toque
+        const touch = e.changedTouches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
         const col = Math.floor(x / CELL_SIZE);
         const row = Math.floor(y / CELL_SIZE);
         return { row, col };
@@ -286,8 +298,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const absDc = Math.abs(dc);
 
         if (!((absDr === 0 && absDc > 0) ||
-              (absDc === 0 && absDr > 0) ||
-              (absDr === absDc && absDr > 0))) {
+            (absDc === 0 && absDr > 0) ||
+            (absDr === absDc && absDr > 0))) {
             return [];
         }
 
@@ -400,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
         timerDisplay.textContent = `Tempo: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     }
 
+    // --- Eventos de Mouse ---
     canvas.addEventListener('mousedown', (e) => {
         startCellCoords = getCellCoordsFromMouse(e);
         endCellCoords = startCellCoords;
@@ -430,6 +443,45 @@ document.addEventListener('DOMContentLoaded', () => {
             clearSelection();
         }
     });
+
+    // --- Eventos de Toque (Touch) ---
+    canvas.addEventListener('touchstart', (e) => {
+        // Previne o comportamento padrão do navegador (como rolagem) ao iniciar o toque
+        e.preventDefault();
+        startCellCoords = getCellCoordsFromTouch(e);
+        endCellCoords = startCellCoords;
+        isSelecting = true;
+        currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
+        drawGrid();
+    }, { passive: false }); // Usar { passive: false } para permitir preventDefault
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (isSelecting) {
+            e.preventDefault(); // Previne rolagem enquanto arrasta no canvas
+            const currentCoords = getCellCoordsFromTouch(e);
+            if (currentCoords.row !== endCellCoords.row || currentCoords.col !== endCellCoords.col) {
+                endCellCoords = currentCoords;
+                currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
+                drawGrid();
+            }
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+        if (isSelecting) {
+            checkWord();
+        }
+        // O touchleave não é um evento padrão, mas touchend geralmente serve como o "fim" da interação
+        // Não é necessário um evento separado para "leave" no touch, pois o touchend já encerra a seleção.
+    });
+
+    canvas.addEventListener('touchcancel', () => {
+        // touchcancel é disparado se o toque for interrompido de alguma forma (ex: chamada, notificação)
+        if (isSelecting) {
+            clearSelection();
+        }
+    });
+
 
     restartButton.addEventListener('click', initializeGame);
     victoryRestartButton.addEventListener('click', initializeGame);
