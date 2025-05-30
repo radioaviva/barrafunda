@@ -3,75 +3,19 @@
     /* Estas propriedades são para o caça-palavras agir como uma seção separada */
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Alinhamento para o topo */
+    align-items: center;
     background: none; /* Remover o gradiente de fundo se o body principal já tem um */
     margin: 0;
     color: #333;
     padding: 0; /* Remover padding padrão do body */
     width: 100%; /* Garantir que o wrapper do jogo ocupe o espaço disponível */
 
-    /* ESSENCIAL: Adiciona position: relative para que os confetes e overlays sejam posicionados em relação a este elemento */
+    /* ESSENCIAL: Adiciona position: relative para que os confetes sejam posicionados em relação a este elemento */
     position: relative;
-    /* ESSENCIAL: Garante que os confetes e overlays não vazem para fora desta área */
+    /* ESSENCIAL: Garante que os confetes não vazem para fora desta área */
     overflow: hidden;
-    /* Ajuste de min-height para ser mais flexível e menos propenso a espaços vazios/cortes */
-    min-height: 600px; /* Ajuste esta altura se o seu jogo for maior ou menor */
-    box-sizing: border-box; /* Inclui padding e borda na largura/altura */
-}
-
-/* NOVO: Estilo para a tela de introdução */
-.intro-screen {
-    position: absolute; /* Posição absoluta para cobrir o conteúdo do jogo */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #fff; /* Fundo branco, ou algo que combine com seu site */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 20; /* Certifique-se de que está acima do jogo e do overlay */
-    transition: opacity 0.5s ease-out, visibility 0.5s ease-out; /* Transição suave */
-    padding: 20px;
-    box-sizing: border-box;
-    text-align: center;
-}
-
-.intro-screen.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none; /* Impede cliques quando invisível */
-}
-
-.intro-screen h1 {
-    color: #0d47a1;
-    font-size: 3em;
-    margin-bottom: 15px;
-}
-
-.intro-screen p {
-    font-size: 1.5em;
-    color: #555;
-    margin-bottom: 30px;
-}
-
-/* NOVO: Estilo para o overlay de escurecimento */
-.game-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Cor preta com 50% de opacidade */
-    z-index: 5; /* Abaixo da tela de introdução, acima do jogo */
-    display: none; /* Inicialmente oculto */
-    transition: opacity 0.5s ease-in-out;
-}
-
-.game-overlay.visible {
-    display: block; /* Torna visível */
-    opacity: 1;
+    /* NOVO: Define uma altura mínima para a área do jogo, ou pode usar flex-grow no .container-wordsearch se preferir */
+    min-height: 700px; /* Ajuste esta altura se o seu jogo for maior ou menor */
 }
 
 /* Alterado de .container para .container-wordsearch para evitar conflitos */
@@ -88,9 +32,6 @@
     flex-direction: column;
     align-items: center;
     box-sizing: border-box;
-    /* Ajuste para que o jogo fique acima do overlay quando ativo */
-    position: relative; /* Necessário para z-index */
-    z-index: 10;
 }
 
 /* Títulos h1 e h2 do jogo - podem ser específicos ou gerais */
@@ -110,32 +51,22 @@
 /* Alterado de .game-area para .game-area-wordsearch para evitar conflitos */
 .game-area-wordsearch {
     display: flex;
-    flex-wrap: wrap; /* Permite que o canvas e a lista de palavras quebrem a linha */
+    flex-wrap: wrap;
     justify-content: center;
     gap: 30px;
     margin-bottom: 20px;
     width: 100%;
-    align-items: flex-start; /* Alinha o topo do canvas e da lista de palavras */
+    align-items: flex-start;
 }
 
 #wordSearchCanvas {
-    /* Removido width e height fixos. Agora o CSS controla o tamanho relativo,
-       e o JS define as dimensões intrínsecas (canvas.width/height) para resolução. */
     border: 2px solid #0d47a1;
     border-radius: 8px;
     background-color: #f0f8ff;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    
-    /* Configurações para responsividade do canvas */
-    flex-grow: 1; /* Permite que o canvas cresça */
-    flex-shrink: 1; /* Permite que o canvas encolha */
-    min-width: 280px; /* Largura mínima para evitar que fique ilegível */
-    max-width: 500px; /* Largura máxima desejada para o canvas */
-    width: 100%; /* Tenta ocupar 100% da largura do seu flex item */
-    height: auto; /* A altura será proporcional à largura */
-    aspect-ratio: 1 / 1; /* Mantém a proporção quadrada (1:1) */
-    display: block; /* Remove espaços extras */
-    box-sizing: border-box; /* Garante que padding/border sejam incluídos na largura/altura */
+    max-width: 500px;
+    height: auto;
+    display: block;
 }
 
 /* Alterado de .word-list-container para .word-list-container-wordsearch para evitar conflitos */
@@ -145,52 +76,38 @@
     border-radius: 10px;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
     flex-grow: 1;
-    flex-shrink: 1; /* Permite que a lista encolha */
-    min-width: 250px; /* Garante que a lista não fique muito estreita */
-    max-width: 350px; /* Ajusta o max-width para a lista */
+    min-width: 250px;
     box-sizing: border-box;
-    /* Adicionando um pouco de margem superior para separar do canvas quando empilhado */
-    margin-top: 20px; 
 }
 
-/* --- ESTILOS DA LISTA DE PALAVRAS (NOVO LAYOUT) --- */
 #word-list {
-    list-style: none; /* Remove os marcadores de lista padrão */
+    list-style: none;
     padding: 0;
-    margin: 0 auto; /* Centraliza a lista de palavras horizontalmente */
+    margin: 0;
     display: flex;
-    flex-wrap: wrap; /* Permite que os itens quebrem linha */
-    justify-content: flex-start; /* Alinha as palavras à esquerda, como texto corrido */
-    /* Remove 'gap' para controle manual do espaçamento entre palavras com margin-right */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
 }
 
 #word-list li {
-    background-color: transparent; /* Remove o fundo */
-    padding: 0; /* Remove o padding */
-    border-radius: 0; /* Remove o border-radius */
-    border: none; /* Remove a borda */
-    color: #333; /* Cor do texto mais escura para melhor legibilidade */
-    font-weight: bold; /* Mantém a fonte em negrito */
-    font-size: 1.1em; /* Tamanho da fonte, ajuste conforme necessário */
-    transition: none; /* Remove transições desnecessárias para texto */
-    white-space: nowrap; /* Impede que a palavra quebre no meio */
-    margin-right: 12px; /* Espaçamento horizontal entre as palavras */
-    margin-bottom: 8px; /* Espaçamento vertical entre as linhas de palavras */
-    box-sizing: border-box; /* Garante que margens não afetem a largura */
-    text-align: left; /* Alinha o texto à esquerda */
-    flex-shrink: 0; /* Não permite que a palavra encolha, mantendo a largura natural */
-    flex-grow: 0; /* Não permite que a palavra cresça */
-    /* Removido flex-basis, min-width, max-width para um fluxo de texto mais natural */
+    background-color: #e3f2fd;
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid #cce7fc;
+    color: #0d47a1;
+    font-weight: bold;
+    font-size: 1.1em;
+    transition: background-color 0.3s, color 0.3s, text-decoration 0.3s;
+    white-space: nowrap;
 }
 
 #word-list li.found-word {
-    text-decoration: line-through; /* Mantém o riscado quando a palavra é encontrada */
-    color: #4CAF50; /* Cor verde para palavras encontradas */
-    background-color: transparent; /* Certifica-se de que o fundo permanece transparente */
-    border-color: transparent; /* Certifica-se de que a borda permanece transparente */
+    text-decoration: line-through;
+    color: #4CAF50;
+    background-color: #e8f5e9;
+    border-color: #c8e6c9;
 }
-/* --- FIM DOS ESTILOS DA LISTA DE PALAVRAS --- */
-
 
 .action-button {
     background-color: #0d47a1;
@@ -238,6 +155,7 @@
 
 @keyframes confetti-fall {
     0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } /* Começa um pouco acima */
+    /* NOVO: Cai até o final do contêiner pai, 100% da altura do `.body-wordsearch` + 20px para sair completamente */
     100% { transform: translateY(calc(100% + 20px)) rotate(720deg); opacity: 0; }
 }
 
@@ -250,7 +168,7 @@
 
 /* Estilo para o display do timer */
 #timer-display {
-    font-size: 1.5em;
+    font-size: 1em;
     font-weight: bold;
     color: #0d47a1; /* Cor para combinar com seu site */
     margin-bottom: 15px;
@@ -272,37 +190,21 @@
     }
     #wordSearchCanvas {
         width: 100%;
-        max-width: 400px; /* Limita o tamanho do canvas em tablets */
+        max-width: 400px;
         margin: 0 auto;
     }
     .word-list-container-wordsearch { /* Alterado */
         min-width: unset;
         width: 100%;
-        max-width: 400px; /* Limita a largura da lista em tablets */
-        margin: 0 auto; /* Centraliza a lista quando empilhada */
-        margin-top: 20px; /* Garante espaço superior */
     }
-    .container-wordsearch h1 { font-size: 2em; } /* Mais específico */
-    .container-wordsearch h2 { font-size: 1.5em; } /* Mais específico */
-    
-    #word-list {
-        max-width: 100%; /* Permite que a lista ocupe toda a largura disponível */
-        justify-content: flex-start; /* Mantém alinhado à esquerda */
-    }
-    #word-list li { 
-        font-size: 1em; /* Tamanho da fonte ajustado para tablets */
-        margin-right: 10px; /* Ajuste do espaçamento */
-        margin-bottom: 6px;
-    }
-
-    .victory-message { font-size: 1.6em; }
+    .container-wordsearch h1 { font-size: 1em; } /* Mais específico */
+    .container-wordsearch h2 { font-size: 1em; } /* Mais específico */
+    #word-list li { font-size: 0.7em; padding: 7px 14px; }
+    .victory-message { font-size: 1em; }
     .action-button { font-size: 1.1em; padding: 10px 22px; }
     .body-wordsearch { /* NOVO: Ajuste a altura mínima para telas menores */
-        min-height: 550px;
+        min-height: 600px;
     }
-    /* NOVO: Ajuste para a tela de introdução em telas menores */
-    .intro-screen h1 { font-size: 2.2em; }
-    .intro-screen p { font-size: 1.2em; }
 }
 
 /* Telas menores que 480px (celulares) */
@@ -311,25 +213,16 @@
         padding: 15px;
         margin: 5px auto;
     }
-    .container-wordsearch h1 { font-size: 1.8em; margin-bottom: 15px; } /* Mais específico */
-    .container-wordsearch h2 { font-size: 1.3em; margin-bottom: 10px; } /* Mais específico */
-    
-    #word-list li { 
-        font-size: 0.9em; /* Tamanho da fonte menor para as palavras no mobile */
-        margin-right: 8px; /* Ajuste do espaçamento */
-        margin-bottom: 4px;
-    }
-    
-    .victory-message { font-size: 1.3em; }
+    .container-wordsearch h1 { font-size: 1em; margin-bottom: 15px; } /* Mais específico */
+    .container-wordsearch h2 { font-size: 1em; margin-bottom: 10px; } /* Mais específico */
+    #word-list li { font-size: 0.7em; padding: 2px 2px; gap: 2px; }
+    .victory-message { font-size: 1em; }
     .action-button { font-size: 1em; padding: 8px 18px; }
 
     #wordSearchCanvas {
-        max-width: 95vw; /* O canvas ocupa quase a largura total da viewport */
+        max-width: 90vw;
     }
     .body-wordsearch { /* NOVO: Ajuste a altura mínima para telas muito pequenas */
-        min-height: 500px;
+        min-height: 550px;
     }
-    /* NOVO: Ajuste para a tela de introdução em telas muito pequenas */
-    .intro-screen h1 { font-size: 1.8em; }
-    .intro-screen p { font-size: 1em; }
 }
