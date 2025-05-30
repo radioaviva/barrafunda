@@ -3,7 +3,7 @@
     /* Estas propriedades são para o caça-palavras agir como uma seção separada */
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* Alinhamento para o topo */
     background: none; /* Remover o gradiente de fundo se o body principal já tem um */
     margin: 0;
     color: #333;
@@ -14,8 +14,9 @@
     position: relative;
     /* ESSENCIAL: Garante que os confetes e overlays não vazem para fora desta área */
     overflow: hidden;
-    /* NOVO: Define uma altura mínima para a área do jogo, ou pode usar flex-grow no .container-wordsearch se preferir */
-    min-height: 700px; /* Ajuste esta altura se o seu jogo for maior ou menor */
+    /* Ajuste de min-height para ser mais flexível e menos propenso a espaços vazios/cortes */
+    min-height: 600px; /* Ajuste esta altura se o seu jogo for maior ou menor */
+    box-sizing: border-box; /* Inclui padding e borda na largura/altura */
 }
 
 /* NOVO: Estilo para a tela de introdução */
@@ -109,22 +110,32 @@
 /* Alterado de .game-area para .game-area-wordsearch para evitar conflitos */
 .game-area-wordsearch {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Permite que o canvas e a lista de palavras quebrem a linha */
     justify-content: center;
     gap: 30px;
     margin-bottom: 20px;
     width: 100%;
-    align-items: flex-start;
+    align-items: flex-start; /* Alinha o topo do canvas e da lista de palavras */
 }
 
 #wordSearchCanvas {
+    /* Removido width e height fixos. Agora o CSS controla o tamanho relativo,
+       e o JS define as dimensões intrínsecas (canvas.width/height) para resolução. */
     border: 2px solid #0d47a1;
     border-radius: 8px;
     background-color: #f0f8ff;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    height: auto;
-    display: block;
+    
+    /* Configurações para responsividade do canvas */
+    flex-grow: 1; /* Permite que o canvas cresça */
+    flex-shrink: 1; /* Permite que o canvas encolha */
+    min-width: 280px; /* Largura mínima para evitar que fique ilegível */
+    max-width: 500px; /* Largura máxima desejada para o canvas */
+    width: 100%; /* Tenta ocupar 100% da largura do seu flex item */
+    height: auto; /* A altura será proporcional à largura */
+    aspect-ratio: 1 / 1; /* Mantém a proporção quadrada (1:1) */
+    display: block; /* Remove espaços extras */
+    box-sizing: border-box; /* Garante que padding/border sejam incluídos na largura/altura */
 }
 
 /* Alterado de .word-list-container para .word-list-container-wordsearch para evitar conflitos */
@@ -134,30 +145,44 @@
     border-radius: 10px;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
     flex-grow: 1;
-    min-width: 250px;
+    flex-shrink: 1; /* Permite que a lista encolha */
+    min-width: 250px; /* Garante que a lista não fique muito estreita */
+    max-width: 350px; /* Ajusta o max-width para a lista */
     box-sizing: border-box;
 }
 
 #word-list {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 0 auto; /* Centralizar a lista de palavras horizontalmente */
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
+    flex-wrap: wrap; /* Permite que os itens quebrem linha */
+    justify-content: center; /* Centraliza as palavras */
+    gap: 8px; /* Espaçamento menor entre as palavras */
+    max-width: 580px; /* Largura máxima para a lista de palavras para controlar as colunas */
 }
 
 #word-list li {
     background-color: #e3f2fd;
-    padding: 8px 15px;
+    padding: 5px 10px; /* Reduzindo o padding */
     border-radius: 20px;
     border: 1px solid #cce7fc;
     color: #0d47a1;
     font-weight: bold;
-    font-size: 1.1em;
+    font-size: 0.85em; /* Reduzindo o tamanho da fonte */
     transition: background-color 0.3s, color 0.3s, text-decoration 0.3s;
-    white-space: nowrap;
+    white-space: nowrap; /* Tenta manter a palavra em uma linha */
+    overflow: hidden; /* Oculta o que transborda */
+    text-overflow: ellipsis; /* Adiciona "..." se a palavra for muito longa */
+    margin-bottom: 8px; /* Espaço entre as linhas de palavras */
+    box-sizing: border-box; /* Garante que padding e border não aumentem a largura */
+    text-align: center; /* Centralizar o texto dentro de cada item */
+
+    /* Flex-basis para tentar 6 palavras por linha (ou o máximo possível) */
+    /* (100% / 6) = 16.66% aproximadamente. Ajuste a margem e o gap. */
+    flex-basis: calc(16.66% - 8px); /* 6 palavras por linha, considerando o gap */
+    min-width: 70px; /* Largura mínima para uma palavra não ficar espremida */
+    max-width: 120px; /* Largura máxima para evitar que uma palavra muito longa desestruture */
 }
 
 #word-list li.found-word {
@@ -247,20 +272,34 @@
     }
     #wordSearchCanvas {
         width: 100%;
-        max-width: 400px;
+        max-width: 400px; /* Limita o tamanho do canvas em tablets */
         margin: 0 auto;
     }
     .word-list-container-wordsearch { /* Alterado */
         min-width: unset;
         width: 100%;
+        max-width: 400px; /* Limita a largura da lista em tablets */
+        margin: 0 auto; /* Centraliza a lista quando empilhada */
     }
     .container-wordsearch h1 { font-size: 2em; } /* Mais específico */
     .container-wordsearch h2 { font-size: 1.5em; } /* Mais específico */
-    #word-list li { font-size: 0.95em; padding: 7px 14px; }
+    
+    #word-list {
+        max-width: 100%; /* Permite que a lista ocupe toda a largura disponível */
+        justify-content: center; /* Centraliza as palavras */
+    }
+    #word-list li { 
+        font-size: 0.9em; 
+        padding: 6px 12px; 
+        flex-basis: calc(33.33% - 8px); /* Tenta 3 palavras por linha em tablets */
+        min-width: 90px; /* Ajuste para não ficar muito estreito */
+        max-width: 150px;
+    }
+
     .victory-message { font-size: 1.6em; }
     .action-button { font-size: 1.1em; padding: 10px 22px; }
     .body-wordsearch { /* NOVO: Ajuste a altura mínima para telas menores */
-        min-height: 600px;
+        min-height: 550px;
     }
     /* NOVO: Ajuste para a tela de introdução em telas menores */
     .intro-screen h1 { font-size: 2.2em; }
@@ -275,15 +314,26 @@
     }
     .container-wordsearch h1 { font-size: 1.8em; margin-bottom: 15px; } /* Mais específico */
     .container-wordsearch h2 { font-size: 1.3em; margin-bottom: 10px; } /* Mais específico */
-    #word-list li { font-size: 0.85em; padding: 6px 12px; gap: 8px; }
+    
+    #word-list {
+        gap: 6px; /* Espaçamento ainda menor */
+    }
+    #word-list li { 
+        font-size: 0.8em; /* Tamanho da fonte menor para as palavras no mobile */
+        padding: 4px 8px; 
+        flex-basis: calc(50% - 6px); /* Tenta 2 palavras por linha em celulares */
+        min-width: 120px; /* Aumenta o min-width para duas palavras */
+        max-width: 200px;
+    }
+    
     .victory-message { font-size: 1.3em; }
     .action-button { font-size: 1em; padding: 8px 18px; }
 
     #wordSearchCanvas {
-        max-width: 90vw;
+        max-width: 95vw; /* O canvas ocupa quase a largura total da viewport */
     }
     .body-wordsearch { /* NOVO: Ajuste a altura mínima para telas muito pequenas */
-        min-height: 550px;
+        min-height: 500px;
     }
     /* NOVO: Ajuste para a tela de introdução em telas muito pequenas */
     .intro-screen h1 { font-size: 1.8em; }
