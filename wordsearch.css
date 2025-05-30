@@ -149,48 +149,48 @@
     min-width: 250px; /* Garante que a lista não fique muito estreita */
     max-width: 350px; /* Ajusta o max-width para a lista */
     box-sizing: border-box;
+    /* Adicionando um pouco de margem superior para separar do canvas quando empilhado */
+    margin-top: 20px; 
 }
 
+/* --- ESTILOS DA LISTA DE PALAVRAS (NOVO LAYOUT) --- */
 #word-list {
-    list-style: none;
+    list-style: none; /* Remove os marcadores de lista padrão */
     padding: 0;
-    margin: 0 auto; /* Centralizar a lista de palavras horizontalmente */
+    margin: 0 auto; /* Centraliza a lista de palavras horizontalmente */
     display: flex;
     flex-wrap: wrap; /* Permite que os itens quebrem linha */
-    justify-content: center; /* Centraliza as palavras */
-    gap: 8px; /* Espaçamento menor entre as palavras */
-    max-width: 580px; /* Largura máxima para a lista de palavras para controlar as colunas */
+    justify-content: flex-start; /* Alinha as palavras à esquerda, como texto corrido */
+    /* Remove 'gap' para controle manual do espaçamento entre palavras com margin-right */
 }
 
 #word-list li {
-    background-color: #e3f2fd;
-    padding: 5px 10px; /* Reduzindo o padding */
-    border-radius: 20px;
-    border: 1px solid #cce7fc;
-    color: #0d47a1;
-    font-weight: bold;
-    font-size: 0.85em; /* Reduzindo o tamanho da fonte */
-    transition: background-color 0.3s, color 0.3s, text-decoration 0.3s;
-    white-space: nowrap; /* Tenta manter a palavra em uma linha */
-    overflow: hidden; /* Oculta o que transborda */
-    text-overflow: ellipsis; /* Adiciona "..." se a palavra for muito longa */
-    margin-bottom: 8px; /* Espaço entre as linhas de palavras */
-    box-sizing: border-box; /* Garante que padding e border não aumentem a largura */
-    text-align: center; /* Centralizar o texto dentro de cada item */
-
-    /* Flex-basis para tentar 6 palavras por linha (ou o máximo possível) */
-    /* (100% / 6) = 16.66% aproximadamente. Ajuste a margem e o gap. */
-    flex-basis: calc(16.66% - 8px); /* 6 palavras por linha, considerando o gap */
-    min-width: 70px; /* Largura mínima para uma palavra não ficar espremida */
-    max-width: 120px; /* Largura máxima para evitar que uma palavra muito longa desestruture */
+    background-color: transparent; /* Remove o fundo */
+    padding: 0; /* Remove o padding */
+    border-radius: 0; /* Remove o border-radius */
+    border: none; /* Remove a borda */
+    color: #333; /* Cor do texto mais escura para melhor legibilidade */
+    font-weight: bold; /* Mantém a fonte em negrito */
+    font-size: 1.1em; /* Tamanho da fonte, ajuste conforme necessário */
+    transition: none; /* Remove transições desnecessárias para texto */
+    white-space: nowrap; /* Impede que a palavra quebre no meio */
+    margin-right: 12px; /* Espaçamento horizontal entre as palavras */
+    margin-bottom: 8px; /* Espaçamento vertical entre as linhas de palavras */
+    box-sizing: border-box; /* Garante que margens não afetem a largura */
+    text-align: left; /* Alinha o texto à esquerda */
+    flex-shrink: 0; /* Não permite que a palavra encolha, mantendo a largura natural */
+    flex-grow: 0; /* Não permite que a palavra cresça */
+    /* Removido flex-basis, min-width, max-width para um fluxo de texto mais natural */
 }
 
 #word-list li.found-word {
-    text-decoration: line-through;
-    color: #4CAF50;
-    background-color: #e8f5e9;
-    border-color: #c8e6c9;
+    text-decoration: line-through; /* Mantém o riscado quando a palavra é encontrada */
+    color: #4CAF50; /* Cor verde para palavras encontradas */
+    background-color: transparent; /* Certifica-se de que o fundo permanece transparente */
+    border-color: transparent; /* Certifica-se de que a borda permanece transparente */
 }
+/* --- FIM DOS ESTILOS DA LISTA DE PALAVRAS --- */
+
 
 .action-button {
     background-color: #0d47a1;
@@ -280,20 +280,19 @@
         width: 100%;
         max-width: 400px; /* Limita a largura da lista em tablets */
         margin: 0 auto; /* Centraliza a lista quando empilhada */
+        margin-top: 20px; /* Garante espaço superior */
     }
     .container-wordsearch h1 { font-size: 2em; } /* Mais específico */
     .container-wordsearch h2 { font-size: 1.5em; } /* Mais específico */
     
     #word-list {
         max-width: 100%; /* Permite que a lista ocupe toda a largura disponível */
-        justify-content: center; /* Centraliza as palavras */
+        justify-content: flex-start; /* Mantém alinhado à esquerda */
     }
     #word-list li { 
-        font-size: 0.9em; 
-        padding: 6px 12px; 
-        flex-basis: calc(33.33% - 8px); /* Tenta 3 palavras por linha em tablets */
-        min-width: 90px; /* Ajuste para não ficar muito estreito */
-        max-width: 150px;
+        font-size: 1em; /* Tamanho da fonte ajustado para tablets */
+        margin-right: 10px; /* Ajuste do espaçamento */
+        margin-bottom: 6px;
     }
 
     .victory-message { font-size: 1.6em; }
@@ -315,15 +314,10 @@
     .container-wordsearch h1 { font-size: 1.8em; margin-bottom: 15px; } /* Mais específico */
     .container-wordsearch h2 { font-size: 1.3em; margin-bottom: 10px; } /* Mais específico */
     
-    #word-list {
-        gap: 6px; /* Espaçamento ainda menor */
-    }
     #word-list li { 
-        font-size: 0.8em; /* Tamanho da fonte menor para as palavras no mobile */
-        padding: 4px 8px; 
-        flex-basis: calc(50% - 6px); /* Tenta 2 palavras por linha em celulares */
-        min-width: 120px; /* Aumenta o min-width para duas palavras */
-        max-width: 200px;
+        font-size: 0.9em; /* Tamanho da fonte menor para as palavras no mobile */
+        margin-right: 8px; /* Ajuste do espaçamento */
+        margin-bottom: 4px;
     }
     
     .victory-message { font-size: 1.3em; }
