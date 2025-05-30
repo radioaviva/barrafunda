@@ -7,8 +7,12 @@
     <link rel="stylesheet" href="wordsearch.css">
 </head>
 <body>
+    <div id="start-overlay" class="overlay">
+        <button id="start-button">▶ Jogar</button>
+    </div>
     <div class="container-wordsearch">
         <h1>Caça-Palavras Bíblico</h1>
+        <button id="exit-button" class="exit-btn">sair</button>
         <div id="timer-display">Tempo: 00:00</div>
         <div class="game-area-wordsearch">
             <canvas id="wordSearchCanvas" width="500" height="500"></canvas>
