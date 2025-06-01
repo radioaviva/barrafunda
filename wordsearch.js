@@ -28,10 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
         [ "GABRIEL", "MIGUEL", "RAFAEL", "ZACARIAS", "ISABEL", "JOANA", "TOMÉ", "MATEUS", "FILIPE", "ANDRÉ" ]
     ];
 
-    const GRID_SIZE = 15;
+    const GRID_SIZE = 12;
     const CELL_SIZE = canvas.width / GRID_SIZE;
     const FONT_SIZE = CELL_SIZE * 0.6;
-    const FONT_FAMILY = 'Arial Black, Arial, sans-serif';
+    const FONT_FAMILY = 'Arial Black, Arial';
 
     let grid = [];
     let currentWords = [];
