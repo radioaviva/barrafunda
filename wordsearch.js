@@ -434,6 +434,38 @@ document.addEventListener('DOMContentLoaded', () => {
     restartButton.addEventListener('click', initializeGame);
     victoryRestartButton.addEventListener('click', initializeGame);
 
+    canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault(); // Previne o scroll da tela
+    const touch = e.touches[0];
+    const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
+    startCellCoords = getCellCoordsFromMouse(fakeEvent);
+    endCellCoords = startCellCoords;
+    isSelecting = true;
+    currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
+    drawGrid();
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+    if (isSelecting) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
+        const currentCoords = getCellCoordsFromMouse(fakeEvent);
+        if (currentCoords.row !== endCellCoords.row || currentCoords.col !== endCellCoords.col) {
+            endCellCoords = currentCoords;
+            currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
+            drawGrid();
+        }
+    }
+}, { passive: false });
+
+canvas.addEventListener('touchend', () => {
+    if (isSelecting) {
+        checkWord();
+    }
+}, { passive: false });
+
+
     initializeGame();
 });
 
