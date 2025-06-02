@@ -1,3 +1,16 @@
+:root {
+    /* Variáveis de estilo para fácil ajuste */
+    --grid-cell-size-mobile: 20px;
+    --grid-cell-size-desktop: 40px; /* Mantido em 40px, pois é um bom tamanho para desktop */
+    --grid-gap-mobile: 1px; /* Será sobrescrito para 0px para o efeito de cápsula */
+    --grid-gap-desktop: 4px; /* Será sobrescrito para 0px para o efeito de cápsula */
+    --primary-bg-color: #f0f0f0;
+    --grid-bg-color: #ffffff;
+    --text-color-dark: #333;
+    --text-color-light: #555;
+    --selection-color: rgba(100, 150, 255, 0.3); /* Cor transparente para seleção temporária */
+    --found-word-color: #7B68EE; /* Cor sólida para palavras encontradas (ex: MediumSlateBlue) */
+
 /* Para isolar os estilos do jogo, usamos '.body-wordsearch' como wrapper */
 .body-wordsearch {
     /* Estas propriedades são para o caça-palavras agir como uma seção separada */
