@@ -12,13 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const victoryMessage = document.getElementById('victory-message');
     const timerDisplay = document.getElementById('timer-display');
 
-    // --- NOVOS ELEMENTOS DE ÁUDIO ---
+    // Áudios
     const soundCorrect = new Audio('sons/acerto.mp3');
     const soundVictory = new Audio('sons/vitoria.mp3');
-    // Você pode ajustar o volume se achar muito alto
     soundCorrect.volume = 0.5;
     soundVictory.volume = 0.7;
-    // --- FIM DOS NOVOS ELEMENTOS DE ÁUDIO ---
 
     const ALL_WORD_SETS = [
         [ "MOISÉS", "DAVI", "ESTER", "NOÉ", "MARTA", "PEDRO", "PAULO", "JOÃO", "ABRAÃO", "SARA", "JESUS", "DEUS" ],
@@ -50,14 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
         { dr: 1, dc: 0 },   // Baixo
         { dr: 1, dc: 1 },   // Baixo-direita
         { dr: 1, dc: -1 },  // Baixo-esquerda
-        { dr: -1, dc: 1 },  // Cima-direita (diagonal)
-        { dr: -1, dc: -1 }  // Cima-esquerda (diagonal)
+        { dr: -1, dc: 1 },  // Cima-direita
+        { dr: -1, dc: -1 }  // Cima-esquerda
     ];
-
 
     function initializeGame() {
         grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''));
-        foundWords = new Set();
+        foundWords.clear();
         currentSelectionPath = [];
         isSelecting = false;
         startCellCoords = { row: -1, col: -1 };
@@ -73,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
         victoryRestartButton.style.display = 'none';
 
         wordListElement.innerHTML = '';
-        // Remove confetes antigos quando o jogo é inicializado/reiniciado
         document.querySelectorAll('.confetti').forEach(c => c.remove());
 
         placeWords();
@@ -92,14 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let placed = false;
             let attempts = 0;
             while (!placed && attempts < 1000) {
-                const placementDirections = [
-                    { dr: 0, dc: 1 },   // Direita
-                    { dr: 1, dc: 0 },   // Baixo
-                    { dr: 1, dc: 1 },   // Baixo-direita
-                    { dr: 1, dc: -1 },  // Baixo-esquerda
-                    { dr: -1, dc: 1 },  // Cima-direita
-                    { dr: -1, dc: -1 }  // Cima-esquerda
-                ];
+                const placementDirections = directions;
                 const dir = placementDirections[Math.floor(Math.random() * placementDirections.length)];
                 const startRow = Math.floor(Math.random() * GRID_SIZE);
                 const startCol = Math.floor(Math.random() * GRID_SIZE);
@@ -126,11 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
             c + (word.length - 1) * dc < 0 || c + (word.length - 1) * dc >= GRID_SIZE) {
             return false;
         }
-
         for (let i = 0; i < word.length; i++) {
             const currentRow = r + i * dr;
             const currentCol = c + i * dc;
-
             if (grid[currentRow][currentCol] !== '' && grid[currentRow][currentCol] !== word[i]) {
                 return false;
             }
@@ -160,10 +147,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getCellCoordsFromMouse(e) {
         const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        let clientX, clientY;
+
+        if (e.touches && e.touches.length > 0) {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        const x = (clientX - rect.left) * scaleX;
+        const y = (clientY - rect.top) * scaleY;
+
         const col = Math.floor(x / CELL_SIZE);
         const row = Math.floor(y / CELL_SIZE);
+
         return { row, col };
     }
 
@@ -285,32 +287,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const absDr = Math.abs(dr);
         const absDc = Math.abs(dc);
 
-        if (!((absDr === 0 && absDc > 0) ||
-              (absDc === 0 && absDr > 0) ||
-              (absDr === absDc && absDr > 0))) {
-            return [];
+        if (absDr !== 0 && absDc !== 0 && absDr !== absDc) {
+            return path;
         }
 
-        const unitDr = dr === 0 ? 0 : (dr / absDr);
-        const unitDc = dc === 0 ? 0 : (dc / absDc);
+        const stepR = dr === 0 ? 0 : dr / absDr;
+        const stepC = dc === 0 ? 0 : dc / absDc;
+        const steps = Math.max(absDr, absDc);
 
-        let currentRow = start.row;
-        let currentCol = start.col;
-
-        while (true) {
-            path.push({ row: currentRow, col: currentCol });
-
-            if (currentRow === end.row && currentCol === end.col) {
-                break;
-            }
-
-            currentRow += unitDr;
-            currentCol += unitDc;
-
-            if (path.length > GRID_SIZE * GRID_SIZE) {
-                console.error("Loop infinito na seleção de caminho, abortando.");
-                return [];
-            }
+        for (let i = 0; i <= steps; i++) {
+            const r = start.row + stepR * i;
+            const c = start.col + stepC * i;
+            if (r < 0 || r >= GRID_SIZE || c < 0 || c >= GRID_SIZE) break;
+            path.push({ row: r, col: c });
         }
         return path;
     }
@@ -318,73 +307,51 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkWord() {
         if (currentSelectionPath.length === 0) return;
 
-        let selectedWordText = '';
-        currentSelectionPath.forEach(coords => {
-            selectedWordText += grid[coords.row][coords.col];
-        });
+        const selectedWord = currentSelectionPath.map(cell => grid[cell.row][cell.col]).join('');
+        const reversedWord = selectedWord.split('').reverse().join('');
 
-        const foundMatch = currentWords.find(word => word === selectedWordText);
-
-        if (foundMatch && !foundWords.has(foundMatch)) {
-            foundWords.add(foundMatch);
-            const listItem = wordListElement.querySelector(`li[data-word='${foundMatch}']`);
-            if (listItem) {
-                listItem.classList.add('found-word');
-            }
-            soundCorrect.play().catch(e => console.error("Erro ao tocar som de acerto:", e));
-            drawGrid();
+        if (currentWords.includes(selectedWord) && !foundWords.has(selectedWord)) {
+            foundWords.add(selectedWord);
+            soundCorrect.play();
+            markWordAsFound(selectedWord);
+        } else if (currentWords.includes(reversedWord) && !foundWords.has(reversedWord)) {
+            foundWords.add(reversedWord);
+            soundCorrect.play();
+            markWordAsFound(reversedWord);
         }
+        drawGrid();
         clearSelection();
-        checkGameEnd();
+
+        if (foundWords.size === currentWords.length) {
+            winGame();
+        }
+    }
+
+    function markWordAsFound(word) {
+        const items = wordListElement.querySelectorAll('li');
+        items.forEach(item => {
+            if (item.dataset.word === word) {
+                item.style.textDecoration = 'line-through';
+                item.style.color = '#090';
+            }
+        });
     }
 
     function clearSelection() {
-        currentSelectionPath = [];
         isSelecting = false;
+        currentSelectionPath = [];
         startCellCoords = { row: -1, col: -1 };
         endCellCoords = { row: -1, col: -1 };
         drawGrid();
     }
 
-    function checkGameEnd() {
-        if (foundWords.size === currentWords.length && currentWords.length > 0) {
-            clearInterval(timerInterval);
-            victoryMessage.style.display = 'block';
-            victoryRestartButton.style.display = 'block';
-            restartButton.style.display = 'none';
-            soundVictory.play().catch(e => console.error("Erro ao tocar som de vitória:", e));
-            triggerConfetti();
-        }
-    }
-
-    function triggerConfetti() {
-        // Pega o container do jogo onde os confetes devem cair
-        const gameContainer = document.querySelector('.body-wordsearch');
-        if (!gameContainer) {
-            console.error("Elemento .body-wordsearch não encontrado para adicionar confetes.");
-            return;
-        }
-
-        // Remove confetes antigos, se houver
-        gameContainer.querySelectorAll('.confetti').forEach(c => c.remove());
-
-        // Define a largura e altura do contêiner para posicionamento dos confetes
-        const containerWidth = gameContainer.offsetWidth;
-        const containerHeight = gameContainer.offsetHeight;
-
-        // Cria novos confetes e os adiciona ao container do jogo
-        for (let i = 0; i < 100; i++) {
-            const confetti = document.createElement('div');
-            confetti.classList.add('confetti');
-            // Posiciona horizontalmente dentro da largura do contêiner
-            confetti.style.left = `${Math.random() * containerWidth}px`;
-            // Começa um pouco acima do topo do contêiner
-            confetti.style.top = `-20px`;
-            confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
-            confetti.style.animationDelay = `${Math.random() * 2}s`;
-            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 70%)`;
-            gameContainer.appendChild(confetti); // Adiciona ao gameContainer
-        }
+    function winGame() {
+        soundVictory.play();
+        clearInterval(timerInterval);
+        victoryMessage.style.display = 'block';
+        restartButton.style.display = 'none';
+        victoryRestartButton.style.display = 'block';
+        showConfetti();
     }
 
     function startTimer() {
@@ -395,87 +362,128 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateTimerDisplay() {
-        const minutes = Math.floor(secondsElapsed / 60);
-        const seconds = secondsElapsed % 60;
-        timerDisplay.textContent = `Tempo: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        const minutes = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+        const seconds = (secondsElapsed % 60).toString().padStart(2, '0');
+        timerDisplay.textContent = `Tempo: ${minutes}:${seconds}`;
     }
 
+    function showConfetti() {
+        const colors = ['#fce18a', '#ff726d', '#b48def', '#f4306d', '#76f77b'];
+        const confettiCount = 150;
+
+        for (let i = 0; i < confettiCount; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.animationDuration = `${(Math.random() * 3 + 2)}s`;
+            confetti.style.width = confetti.style.height = `${Math.random() * 7 + 5}px`;
+            document.body.appendChild(confetti);
+
+            setTimeout(() => confetti.remove(), 5000);
+        }
+    }
+
+    // Controle de toque com suporte a apenas um toque ativo
+
+    let activeTouchId = null;
+
     canvas.addEventListener('mousedown', (e) => {
-        startCellCoords = getCellCoordsFromMouse(e);
-        endCellCoords = startCellCoords;
+        e.preventDefault();
+        const coords = getCellCoordsFromMouse(e);
+        if (coords.row < 0 || coords.row >= GRID_SIZE || coords.col < 0 || coords.col >= GRID_SIZE) return;
+
+        startCellCoords = coords;
+        endCellCoords = coords;
         isSelecting = true;
         currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
         drawGrid();
     });
 
     canvas.addEventListener('mousemove', (e) => {
-        if (isSelecting) {
-            const currentCoords = getCellCoordsFromMouse(e);
-            if (currentCoords.row !== endCellCoords.row || currentCoords.col !== endCellCoords.col) {
-                endCellCoords = currentCoords;
-                currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
-                drawGrid();
-            }
-        }
-    });
-
-    canvas.addEventListener('mouseup', () => {
-        if (isSelecting) {
-            checkWord();
-        }
-    });
-
-    canvas.addEventListener('mouseleave', () => {
-        if (isSelecting) {
-            clearSelection();
-        }
-    });
-
-    restartButton.addEventListener('click', initializeGame);
-    victoryRestartButton.addEventListener('click', initializeGame);
-
-    canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault(); // Previne o scroll da tela
-    const touch = e.touches[0];
-    const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
-    startCellCoords = getCellCoordsFromMouse(fakeEvent);
-    endCellCoords = startCellCoords;
-    isSelecting = true;
-    currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
-    drawGrid();
-}, { passive: false });
-
-canvas.addEventListener('touchmove', (e) => {
-    if (isSelecting) {
+        if (!isSelecting) return;
         e.preventDefault();
-        const touch = e.touches[0];
-        const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
-        const currentCoords = getCellCoordsFromMouse(fakeEvent);
-        if (currentCoords.row !== endCellCoords.row || currentCoords.col !== endCellCoords.col) {
-            endCellCoords = currentCoords;
+        const coords = getCellCoordsFromMouse(e);
+        if (coords.row < 0 || coords.row >= GRID_SIZE || coords.col < 0 || coords.col >= GRID_SIZE) return;
+
+        if (coords.row !== endCellCoords.row || coords.col !== endCellCoords.col) {
+            endCellCoords = coords;
             currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
             drawGrid();
         }
-    }
-}, { passive: false });
+    });
 
-canvas.addEventListener('touchend', () => {
-    if (isSelecting) {
+    canvas.addEventListener('mouseup', (e) => {
+        if (!isSelecting) return;
+        e.preventDefault();
         checkWord();
-    }
-}, { passive: false });
+        clearSelection();
+    });
 
+    canvas.addEventListener('mouseleave', (e) => {
+        if (!isSelecting) return;
+        e.preventDefault();
+        clearSelection();
+    });
+
+    canvas.addEventListener('touchstart', (e) => {
+        if (activeTouchId !== null) return;
+        e.preventDefault();
+        activeTouchId = e.touches[0].identifier;
+        const touch = e.touches[0];
+        const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
+        const coords = getCellCoordsFromMouse(fakeEvent);
+        if (coords.row < 0 || coords.row >= GRID_SIZE || coords.col < 0 || coords.col >= GRID_SIZE) return;
+
+        startCellCoords = coords;
+        endCellCoords = coords;
+        isSelecting = true;
+        currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
+        drawGrid();
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (!isSelecting) return;
+        e.preventDefault();
+        const touch = Array.from(e.touches).find(t => t.identifier === activeTouchId);
+        if (!touch) return;
+
+        const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
+        const coords = getCellCoordsFromMouse(fakeEvent);
+        if (coords.row < 0 || coords.row >= GRID_SIZE || coords.col < 0 || coords.col >= GRID_SIZE) return;
+
+        if (coords.row !== endCellCoords.row || coords.col !== endCellCoords.col) {
+            endCellCoords = coords;
+            currentSelectionPath = calculateSelectionPath(startCellCoords, endCellCoords);
+            drawGrid();
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        const touchEnded = Array.from(e.changedTouches).find(t => t.identifier === activeTouchId);
+        if (touchEnded && isSelecting) {
+            checkWord();
+            clearSelection();
+            activeTouchId = null;
+        }
+    }, { passive: false });
+
+    canvas.addEventListener('touchcancel', (e) => {
+        const touchCanceled = Array.from(e.changedTouches).find(t => t.identifier === activeTouchId);
+        if (touchCanceled) {
+            clearSelection();
+            activeTouchId = null;
+        }
+    });
+
+    restartButton.addEventListener('click', () => {
+        initializeGame();
+    });
+
+    victoryRestartButton.addEventListener('click', () => {
+        initializeGame();
+    });
 
     initializeGame();
-});
-
-document.getElementById("start-button").addEventListener("click", () => {
-  document.getElementById("start-overlay").style.display = "none";
-
-  // Ative o jogo e o cronômetro
-  startGame(); // Se você tiver uma função startGame, chame aqui.
-});
-
-document.getElementById("exit-button").addEventListener("click", function() {
-    location.reload(); // Esta linha recarrega a página inteira
 });
