@@ -10,279 +10,184 @@
     --text-color-light: #555;
     --selection-color: rgba(100, 150, 255, 0.3); /* Cor transparente para seleção temporária */
     --found-word-color: #7B68EE; /* Cor sólida para palavras encontradas (ex: MediumSlateBlue) */
-
-/* Para isolar os estilos do jogo, usamos '.body-wordsearch' como wrapper */
-.body-wordsearch {
-    /* Estas propriedades são para o caça-palavras agir como uma seção separada */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: none; /* Remover o gradiente de fundo se o body principal já tem um */
-    margin: 0;
-    color: #333;
-    padding: 0; /* Remover padding padrão do body */
-    width: 100%; /* Garantir que o wrapper do jogo ocupe o espaço disponível */
-
-    /* ESSENCIAL: Adiciona position: relative para que os confetes sejam posicionados em relação a este elemento */
-    position: relative;
-    /* ESSENCIAL: Garante que os confetes não vazem para fora desta área */
-    overflow: hidden;
-    /* NOVO: Define uma altura mínima para a área do jogo, ou pode usar flex-grow no .container-wordsearch se preferir */
-    min-height: 700px; /* Ajuste esta altura se o seu jogo for maior ou menor */
 }
 
-/* Alterado de .container para .container-wordsearch para evitar conflitos */
+/* Ajustes para o contêiner do jogo */
+.game-section-wrapper { /* Use a classe que você já tem no HTML */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centraliza o conteúdo horizontalmente */
+    padding: 1rem; /* Adiciona um padding para não colar nas bordas da seção */
+    background: var(--cor-primaria); /* Usa a cor de fundo da sua section principal */
+    border-radius: var(--radius-base);
+    box-shadow: var(--shadow-base);
+    margin-bottom: 2rem; /* Mantém o espaçamento com a próxima seção */
+    text-align: center; /* Centraliza o título do jogo */
+}
+
+.game-section-wrapper h1 { /* Para estilizar o H1 do jogo especificamente */
+    color: var(--cor-secundaria); /* Usa a cor de destaque do seu tema principal */
+    font-size: 1.8rem; /* Tamanho para o título do jogo */
+    margin-bottom: 1rem;
+}
+
+
+/* Antigo #game-wrapper, agora .container-wordsearch dentro da .section */
 .container-wordsearch {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    max-width: 950px;
-    width: 95%;
-    margin: 20px auto;
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%; /* Ocupa 100% da largura da .game-section-wrapper */
+    max-width: 500px; /* Limita a largura máxima do jogo em telas maiores */
+    padding: 0; /* Removido padding, já que o wrapper já tem */
     box-sizing: border-box;
+    flex-grow: 0; /* Não precisa crescer, o tamanho é definido pelo max-width */
+    justify-content: flex-start;
 }
 
-/* Títulos h1 e h2 do jogo - podem ser específicos ou gerais */
-.container-wordsearch h1 { /* Mais específico para não afetar outros h1 */
-    color: #0d47a1;
-    margin-bottom: 20px;
-    font-size: 2.5em;
+
+/* Ajustes para o grid do caça-palavras */
+#wordSearchCanvas { /* Use o ID do seu canvas no HTML */
+    /* Remove o min-width e o width para que ele se adapte ao pai */
+    /* min-width: calc(10 * var(--grid-cell-size-mobile)); */
+    /* width: 100%; */
+    /* height: auto; */ /* Para manter a proporção */
+    max-width: 100%; /* Garante que o canvas não exceda o pai */
+    height: auto; /* Mantém a proporção */
+    border: 1px solid #ccc; /* Adiciona uma borda para visualização */
+    box-sizing: border-box;
+    display: block; /* Remove espaço extra abaixo do canvas */
+    margin: 0 auto; /* Centraliza o canvas */
 }
 
-.container-wordsearch h2 { /* Mais específico para não afetar outros h2 */
-    color: #1a237e;
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.8em;
-}
-
-/* Alterado de .game-area para .game-area-wordsearch para evitar conflitos */
 .game-area-wordsearch {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    margin-bottom: 20px;
+    flex-direction: column; /* Em mobile, canvas em cima, lista embaixo */
+    align-items: center;
     width: 100%;
-    align-items: flex-start;
+    margin-bottom: 15px; /* Espaço entre o jogo e o botão */
 }
 
-#wordSearchCanvas {
-    border: 2px solid #0d47a1;
-    border-radius: 8px;
-    background-color: #f0f8ff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    height: auto;
-    display: block;
-}
-
-/* Alterado de .word-list-container para .word-list-container-wordsearch para evitar conflitos */
 .word-list-container-wordsearch {
-    background-color: #f9fcff;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03);
-    flex-grow: 1;
-    min-width: 250px;
-    box-sizing: border-box;
+    width: 100%; /* Ocupa a largura total */
+    text-align: center; /* Centraliza o título e a lista */
+    margin-top: 15px; /* Espaço entre o canvas e a lista de palavras */
 }
 
-#word-list {
+.word-list-container-wordsearch h2 {
+    font-size: 1.2em;
+    color: var(--cor-secundaria); /* Usa a cor de destaque do seu tema principal */
+    margin-bottom: 0.8rem;
+}
+
+#word-list { /* Renomeei para ser mais específico e não conflitar com ul genérico */
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 12px;
+    gap: 8px 15px; /* Espaçamento entre as palavras */
 }
 
 #word-list li {
-    background-color: #e3f2fd;
-    padding: 8px 15px;
-    border-radius: 20px;
-    border: 1px solid #cce7fc;
-    color: #0d47a1;
-    font-weight: bold;
-    font-size: 0.5em;
-    transition: background-color 0.3s, color 0.3s, text-decoration 0.3s;
-    white-space: nowrap;
+    font-size: 0.9em; /* Ajuste para melhor legibilidade */
+    padding: 4px 8px; /* Mais padding para os itens da lista */
+    color: var(--text-color-light);
+    text-transform: uppercase;
+    background-color: var(--cor-fundo); /* Adiciona um leve fundo para destaque */
+    border-radius: 5px;
 }
 
-#word-list li.found-word {
+#word-list li.found {
     text-decoration: line-through;
-    color: #4CAF50;
-    background-color: #e8f5e9;
-    border-color: #c8e6c9;
+    color: var(--found-word-color);
+    font-weight: bold; /* Destacar palavras encontradas */
 }
 
+/* Estilos para os botões */
 .action-button {
-    background-color: #0d47a1;
+    background-color: var(--cor-secundaria); /* Cor do tema principal */
     color: white;
+    padding: 0.75rem 1.5rem;
     border: none;
-    padding: 12px 25px;
-    border-radius: 8px;
-    font-size: 1.2em;
+    border-radius: var(--radius-base);
     cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s ease, transform 0.2s;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+    transition: background 0.3s ease;
+    margin-top: 10px; /* Espaçamento com o jogo */
 }
 
 .action-button:hover {
-    background-color: #1a237e;
-    transform: translateY(-2px);
+    background-color: var(--cor-destaque); /* Cor de destaque do tema principal */
 }
 
+/* Mensagem de vitória */
 .victory-message {
-    margin-top: 30px;
-    font-size: 1.8em;
-    color: #2e7d32;
+    background-color: var(--cor-destaque); /* Cor de destaque do tema principal */
+    color: var(--cor-primaria);
+    padding: 1rem;
+    border-radius: var(--radius-base);
+    margin-top: 1rem;
+    font-size: 1.1em;
     font-weight: bold;
-    display: none;
-    animation: slideIn 0.8s ease-out forwards;
-}
-
-@keyframes slideIn {
-    0% { opacity: 0; transform: translateY(50px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-/* Confetti animation */
-.confetti {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background-color: #ffd700;
-    opacity: 0;
-    animation: confetti-fall linear infinite;
-    z-index: 10; /* Valor alto para garantir que esteja acima do jogo */
-    border-radius: 50%;
-}
-
-@keyframes confetti-fall {
-    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } /* Começa um pouco acima */
-    /* NOVO: Cai até o final do contêiner pai, 100% da altura do `.body-wordsearch` + 20px para sair completamente */
-    100% { transform: translateY(calc(100% + 20px)) rotate(720deg); opacity: 0; }
-}
-
-.confetti:nth-child(even) { background-color: #ff6f61; animation-delay: 0.5s; }
-.confetti:nth-child(3n) { background-color: #88d8b0; animation-delay: 1s; }
-.confetti:nth-child(4n) { background-color: #6a0572; animation-delay: 1.5s; }
-.confetti:nth-child(5n) { background-color: #f7cac9; animation-delay: 2s; }
-.confetti:nth-child(odd) { background-color: #4CAF50; animation-delay: 0.2s; }
-.confetti:nth-child(6n) { background-color: #1e88e5; animation-delay: 0.8s; }
-
-/* Estilo para o display do timer */
-#timer-display {
-    font-size: 1em;
-    font-weight: bold;
-    color: #0d47a1; /* Cor para combinar com seu site */
-    margin-bottom: 15px;
     text-align: center;
 }
 
-
-/* --- Media Queries para Responsividade --- */
-
-/* Telas menores que 768px (tablets e celulares em landscape) */
-@media (max-width: 768px) {
-    .container-wordsearch { /* Alterado */
-        padding: 20px;
-        margin: 10px auto;
-    }
-    .game-area-wordsearch { /* Alterado */
-        flex-direction: column;
-        gap: 20px;
-    }
-    #wordSearchCanvas {
-        width: 100%;
-        max-width: 400px;
-        margin: 0 auto;
-    }
-    .word-list-container-wordsearch { /* Alterado */
-        min-width: unset;
-        width: 100%;
-    }
-    .container-wordsearch h1 { font-size: 1em; } /* Mais específico */
-    .container-wordsearch h2 { font-size: 1em; } /* Mais específico */
-    #word-list li { font-size: 0.7em; padding: 7px 14px; }
-    .victory-message { font-size: 1em; }
-    .action-button { font-size: 1.1em; padding: 10px 22px; }
-    .body-wordsearch { /* NOVO: Ajuste a altura mínima para telas menores */
-        min-height: 600px;
-    }
+.victory-message button {
+    margin-top: 0.8rem;
 }
 
-/* Telas menores que 480px (celulares) */
-@media (max-width: 480px) {
-    .container-wordsearch { /* Alterado */
-        padding: 15px;
-        margin: 5px auto;
+/* Media Queries para telas maiores (desktops/tablets) */
+@media (min-width: 768px) {
+    .game-section-wrapper {
+        flex-direction: row; /* Coloca o canvas e a lista lado a lado */
+        justify-content: center; /* Centraliza horizontalmente */
+        align-items: flex-start; /* Alinha ao topo verticalmente */
+        gap: 30px; /* Espaço entre o canvas e a lista */
+        max-width: 960px; /* Limita a largura total do wrapper */
+        padding: 2rem; /* Mais padding em desktop */
     }
-    .container-wordsearch h1 { font-size: 1em; margin-bottom: 15px; } /* Mais específico */
-    .container-wordsearch h2 { font-size: 1em; margin-bottom: 10px; } /* Mais específico */
-    #word-list li { font-size: 0.7em; padding: 2px 2px; gap: 2px; }
-    .victory-message { font-size: 1em; }
-    .action-button { font-size: 1em; padding: 8px 18px; }
+
+    .container-wordsearch { /* Agora este é o contêiner do canvas */
+        max-width: 500px; /* Limita o tamanho do canvas para desktop */
+        min-width: 350px; /* Tamanho mínimo para o canvas */
+        flex: 1; /* Permite que o canvas cresça/encolha um pouco */
+    }
 
     #wordSearchCanvas {
-        max-width: 90vw;
+        width: 100%; /* Garante que o canvas ocupe a largura do seu container */
+        height: auto; /* Mantém a proporção */
     }
-    .body-wordsearch { /* NOVO: Ajuste a altura mínima para telas muito pequenas */
-        min-height: 550px;
+
+    .game-area-wordsearch {
+        flex-direction: row; /* Volta a ser row para o canvas e lista */
+        align-items: flex-start;
+        gap: 20px; /* Espaço entre o canvas e a lista */
+        margin-bottom: 0;
     }
-}
 
-/* Overlay escuro na tela toda */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(33, 33, 33, 0.9); /* fundo escuro */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
+    .word-list-container-wordsearch {
+        width: auto; /* Largura automática para a lista */
+        text-align: left; /* Alinha o texto da lista à esquerda */
+        margin-top: 0;
+        flex: 1; /* Permite que a lista de palavras ocupe o espaço restante */
+    }
 
-#start-button {
-  font-size: 3rem;
-  padding: 20px 40px;
-  border: none;
-  border-radius: 10px;
-  background-color: #0d6efd;
-  color: white;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
+    .word-list-container-wordsearch h2 {
+        font-size: 1.4em;
+        margin-top: 0;
+    }
 
-#start-button:hover {
-  transform: scale(1.05);
-}
+    #word-list {
+        flex-direction: column; /* Palavras em coluna para desktop */
+        align-items: flex-start; /* Alinha à esquerda */
+        gap: 5px; /* Espaçamento menor para coluna */
+    }
 
-.exit-btn {
-  background-color: #0d6efd;
-  color: white;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-left: 20rem;
-  margin-top: -3rem;
-}
-
-.exit-btn:hover {
-  background-color: #084fc7;
+    #word-list li {
+        font-size: 1em;
+        padding: 2px 0; /* Remove padding lateral quando em coluna */
+        background-color: transparent; /* Remove fundo para ficar mais limpo */
+    }
 }
