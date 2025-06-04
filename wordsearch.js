@@ -20,10 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const ALL_WORD_SETS = [
         [ "MOISÉS", "DAVI", "ESTER", "NOÉ", "MARTA", "PEDRO", "PAULO", "JOÃO", "ABRAÃO", "SARA", "JESUS", "DEUS" ],
-        [ "ISAIAS", "JEREMIAS", "EZEQUIEL", "DANIEL", "OSEIAS", "JOEL", "AMOS", "OBADIAS", "JONAS", "MIQUEIAS" ],
-        [ "MARIA", "JOSÉ", "ANA", "ELIAS", "SAMUEL", "JUDAS", "CALEBE", "GIDEAO", "DEBORA", "RUTE" ],
-        [ "REBECA", "JACÓ", "RAQUEL", "ISAQUE", "LABAO", "ESAÚ", "LEIA", "SIMAO", "BENJAMIM", "GOLIAS" ],
+        [ "ISAIAS", "JEREMIAS", "EZEQUIEL", "DANIEL", "OSEIAS", "JOEL", "AMÓS", "OBADIAS", "JONAS", "MIQUEIAS" ],
+        [ "MARIA", "JOSÉ", "ANA", "ELIAS", "SAMUEL", "JUDAS", "CALEBE", "GIDEÃO", "DEBORA", "RUTE" ],
+        [ "REBECA", "JACÓ", "RAQUEL", "ISAQUE", "LABÃO", "ESAÚ", "LEIA", "SIMÃO", "BENJAMIM", "NOEMI" ],
         [ "GABRIEL", "MIGUEL", "RAFAEL", "ZACARIAS", "ISABEL", "JOANA", "TOMÉ", "MATEUS", "FILIPE", "ANDRÉ" ]
+        [ "JAIRO", "SILAS", "SALOMÃO", "ELIZEU", "CANAÃ", "EVA", "ADÃO", "JOQUEBEDE", "EFRAIM", "GENESIS" ]
     ];
 
     const GRID_SIZE = 12;
