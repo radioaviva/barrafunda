@@ -295,7 +295,6 @@
             color: var(--cor-secundaria); /* Ou outra cor que combine */
         }
     </style>
-    <link rel="stylesheet" href="wordsearch.css" />
 </head>
 <body>
 
@@ -316,14 +315,13 @@
 
         <section class="section versiculo" aria-label="Programação">
             <h2>Programação</h2>
-                <p>A partir das 19:00h</p>
-                <p>Uma vida cheia do Espírito!<br>Pregação e louvores</p>
+                <p>A partir das 19:00h até as 22:00h</p>
+                <p>Hinos Antigos</p>
         </section>
 
-        <section class="section versiculo" aria-label="Versículo do Dia">
+        <section class="section versiculo" aria-label="Versículo do Dia" id="daily-verse">
             <h2>Versículo do Dia</h2>
             <blockquote>
-                
                     <p>"Porque Deus amou o mundo de tal maneira que deu seu Filho unigênito, para que todo o que nele crê não pereça, mas tenha a vida eterna."</p>
                     <p><strong>João 3:16</strong></p>
             </blockquote>
@@ -347,27 +345,6 @@
             </div>
         </section>
 
-        <main class="section game-section-wrapper" aria-label="Jogo Caça-Palavras Bíblico">
-            <div class="body-wordsearch">
-                <div class="container-wordsearch">
-                    <h1>Caça-Palavras Bíblico</h1>
-                    <div id="timer-display">Tempo: 00:00</div>
-                    <div class="game-area-wordsearch">
-                        <canvas id="wordSearchCanvas" width="500" height="500"></canvas>
-                        <div class="word-list-container-wordsearch">
-                            <h2>Palavras para Encontrar:</h2>
-                            <ul id="word-list">
-                            </ul>
-                        </div>
-                    </div>
-                    <button id="restart-button" class="action-button">Reiniciar Jogo</button>
-                    <div id="victory-message" class="victory-message" style="display:none;">
-                        <p>Parabéns! Você encontrou todas as palavras!</p>
-                        <button id="victory-restart-button" class="action-button">Jogar Novamente</button>
-                    </div>
-                </div>
-            </div>
-        </main>
         <section class="section pedido-oracao" aria-label="Pedido de Oração">
             <h2>Pedido de Oração</h2>
             <form id="formOracao" action="https://formspree.io/f/meogwlay" method="POST">
@@ -410,7 +387,6 @@
 
     </footer>
 
-    <script src="wordsearch.js"></script>
     <script>
         // SEU SCRIPT EXISTENTE AQUI (Do formulário e do player da rádio)
         let isPlaying = false;
@@ -477,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data && data.text && data.reference) {
                 const verseText = data.text;
                 const verseReference = data.reference; // Ex: "Provérbios 3:5-6"
-                dailyVerseElement.innerHTML = `<p>"<span class="math-inline">\{verseText\}"</p\><p\><strong\></span>{verseReference}</strong></p>`;
+                dailyVerseElement.innerHTML = `<p>"${verseText}"</p><p><strong>${verseReference}</strong></p>`;
             } else {
                 console.error("Estrutura de dados da Bible API inesperada:", data);
                 dailyVerseElement.innerHTML = '<p>Formato de versículo inválido recebido da API. Tente novamente mais tarde.</p>';
